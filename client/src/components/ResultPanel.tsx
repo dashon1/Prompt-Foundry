@@ -69,7 +69,17 @@ export function ResultPanel({ result, isLoading, category, genType }: ResultPane
   };
 
   const downloadJSON = () => {
-    const dataStr = JSON.stringify(result, null, 2);
+    // Create a complete export object with all relevant data
+    const exportData = {
+      category,
+      generatorType: genType,
+      generatedAt: new Date().toISOString(),
+      output: result?.output || result,
+      inputs: result?.metadata?.inputs || {},
+      metadata: result?.metadata || {}
+    };
+    
+    const dataStr = JSON.stringify(exportData, null, 2);
     const dataBlob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement("a");
@@ -88,20 +98,30 @@ export function ResultPanel({ result, isLoading, category, genType }: ResultPane
     markdown += `Generated: ${new Date().toLocaleString()}\n\n`;
     markdown += `## Output\n\n`;
     
-    if (result?.output) {
-      Object.entries(result.output).forEach(([key, value]) => {
+    const outputData = result?.output || result;
+    if (outputData && typeof outputData === 'object') {
+      Object.entries(outputData).forEach(([key, value]) => {
         markdown += `### ${key}\n\n`;
         if (Array.isArray(value)) {
           value.forEach((item, index) => {
             markdown += `${index + 1}. ${item}\n`;
           });
-        } else if (typeof value === "object") {
+        } else if (typeof value === "object" && value !== null) {
           markdown += "```json\n" + JSON.stringify(value, null, 2) + "\n```\n";
         } else {
           markdown += `${value}\n`;
         }
         markdown += "\n";
       });
+    } else if (outputData) {
+      // If output is a string or other primitive
+      markdown += `${String(outputData)}\n\n`;
+    }
+    
+    // Add inputs if available
+    if (result?.metadata?.inputs && Object.keys(result.metadata.inputs).length > 0) {
+      markdown += `## Inputs\n\n`;
+      markdown += "```json\n" + JSON.stringify(result.metadata.inputs, null, 2) + "\n```\n";
     }
 
     const dataBlob = new Blob([markdown], { type: "text/markdown" });
@@ -157,7 +177,7 @@ export function ResultPanel({ result, isLoading, category, genType }: ResultPane
         <div key={key} className="space-y-2">
           <h4 className="text-sm font-semibold capitalize text-muted-foreground">{key.replace(/_/g, " ")}</h4>
           <div className="bg-muted/50 rounded-md p-4">
-            <p className="text-sm leading-relaxed whitespace-pre-wrap" data-testid={`text-output-${key}`}>{value}</p>
+            <p className="text-sm leading-relaxed whitespace-pre-wrap" data-testid={`text-output-${key}`}>{String(value)}</p>
           </div>
         </div>
       );
