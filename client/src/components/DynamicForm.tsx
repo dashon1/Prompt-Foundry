@@ -2,8 +2,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { InputWithSpeech } from "@/components/ui/input-with-speech";
+import { TextareaWithSpeech } from "@/components/ui/textarea-with-speech";
 import { Switch } from "@/components/ui/switch";
 import { GENERATOR_SCHEMAS, type Category, type GeneratorType } from "@shared/schema";
 import { Loader2, Wand2 } from "lucide-react";
@@ -155,7 +155,7 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
             <FormItem>
               <FormLabel className="capitalize">{fieldName.replace(/_/g, " ")}</FormLabel>
               <FormControl>
-                <Input
+                <InputWithSpeech
                   type="number"
                   placeholder={getPlaceholder(fieldName)}
                   {...field}
@@ -197,7 +197,7 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
                 <FormLabel className="capitalize">{fieldName.replace(/_/g, " ")}</FormLabel>
                 <div className="space-y-2">
                   <div className="flex gap-2">
-                    <Input
+                    <InputWithSpeech
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyDown={(e) => {
@@ -257,7 +257,7 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
                       {nestedField.replace(/_/g, " ")}
                     </FormLabel>
                     <FormControl>
-                      <Input
+                      <InputWithSpeech
                         type={nestedType === "ZodNumber" ? "number" : "text"}
                         placeholder={getPlaceholder(nestedField)}
                         {...field}
@@ -291,14 +291,14 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
             <FormLabel className="capitalize">{fieldName.replace(/_/g, " ")}</FormLabel>
             <FormControl>
               {isLongField ? (
-                <Textarea
+                <TextareaWithSpeech
                   {...field}
                   rows={3}
                   placeholder={getPlaceholder(fieldName)}
                   data-testid={`textarea-${fieldName}`}
                 />
               ) : (
-                <Input 
+                <InputWithSpeech 
                   {...field} 
                   placeholder={getPlaceholder(fieldName)}
                   data-testid={`input-${fieldName}`} 
