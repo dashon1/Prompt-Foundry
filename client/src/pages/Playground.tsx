@@ -167,7 +167,7 @@ export default function Playground() {
                 </CardHeader>
                 <CardContent>
                   <DynamicForm
-                    key={formResetKeyRef.current}
+                    key={`${selectedCategory}-${selectedType}-${formResetKeyRef.current}`}
                     category={selectedCategory}
                     genType={selectedType}
                     onSubmit={handleSubmit}
