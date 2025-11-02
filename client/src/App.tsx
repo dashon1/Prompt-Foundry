@@ -10,6 +10,7 @@ import Generators from "@/pages/Generators";
 import Playground from "@/pages/Playground";
 import API from "@/pages/API";
 import History from "@/pages/History";
+import SharedPrompt from "@/pages/SharedPrompt";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/playground" component={Playground} />
       <Route path="/api" component={API} />
       <Route path="/history" component={History} />
+      <Route path="/share/:shareId" component={SharedPrompt} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -1,8 +1,12 @@
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, Download, FileText, Loader2, Sparkles } from "lucide-react";
+import { Copy, Download, FileText, Loader2, Sparkles, Share2, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { apiRequest } from "@/lib/queryClient";
 import type { Category, GeneratorType } from "@shared/schema";
 
 interface ResultPanelProps {
@@ -14,6 +18,35 @@ interface ResultPanelProps {
 
 export function ResultPanel({ result, isLoading, category, genType }: ResultPanelProps) {
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
+  const [sharedUrl, setSharedUrl] = useState<string | null>(null);
+
+  const shareMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", "/api/shares", {
+        category,
+        genType,
+        inputs: result.metadata?.inputs || {},
+        output: result.output,
+      });
+    },
+    onSuccess: (data: any) => {
+      const url = `${window.location.origin}/share/${data.shareId}`;
+      setSharedUrl(url);
+      navigator.clipboard.writeText(url);
+      toast({
+        title: "Share link created",
+        description: "Link copied to clipboard",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create share link",
+        variant: "destructive",
+      });
+    },
+  });
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -21,6 +54,18 @@ export function ResultPanel({ result, isLoading, category, genType }: ResultPane
       title: "Copied",
       description: "Result copied to clipboard"
     });
+  };
+
+  const handleShare = () => {
+    if (sharedUrl) {
+      navigator.clipboard.writeText(sharedUrl);
+      toast({
+        title: "Copied",
+        description: "Share link copied to clipboard",
+      });
+    } else {
+      shareMutation.mutate();
+    }
   };
 
   const downloadJSON = () => {
@@ -204,6 +249,25 @@ export function ResultPanel({ result, isLoading, category, genType }: ResultPane
             <Copy className="h-4 w-4 mr-2" />
             Copy
           </Button>
+          {isAuthenticated && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShare}
+              disabled={shareMutation.isPending}
+              className="flex-1 min-w-[120px]"
+              data-testid="button-share"
+            >
+              {shareMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : sharedUrl ? (
+                <Check className="h-4 w-4 mr-2" />
+              ) : (
+                <Share2 className="h-4 w-4 mr-2" />
+              )}
+              {sharedUrl ? "Copied" : "Share"}
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"
