@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { pgTable, serial, varchar, text, timestamp, integer, jsonb, boolean, index } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { createInsertSchema } from "drizzle-zod";
 
 // Preset constants
 export const PHOTOREALISM_ADDON = "unsmoothed skin, real imperfections, true physics lighting, physically accurate textures, no CGI sheen, no stylized rendering, zero AI perfection artifacts";
@@ -595,3 +598,110 @@ export const CATEGORY_METADATA: CategoryMetadata[] = [
   { id: "science_rnd", name: "Science R&D", description: "Research protocols and experimental design", icon: "Microscope" },
   { id: "hr_operations", name: "HR Operations", description: "HR processes, rubrics, and operational procedures", icon: "Briefcase" }
 ];
+
+// Session storage table (required for Replit Auth)
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => ({
+    expireIdx: index("IDX_session_expire").on(table.expire)
+  })
+);
+
+// User storage table (required for Replit Auth)
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: varchar("email").unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const presets = pgTable("presets", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 100 }).notNull(),
+  genType: varchar("gen_type", { length: 100 }).notNull(),
+  inputs: jsonb("inputs").notNull(),
+  isFavorite: boolean("is_favorite").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow()
+}, (table) => ({
+  userIdIdx: index("presets_user_id_idx").on(table.userId),
+  categoryIdx: index("presets_category_idx").on(table.category)
+}));
+
+export const generationHistory = pgTable("generation_history", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  category: varchar("category", { length: 100 }).notNull(),
+  genType: varchar("gen_type", { length: 100 }).notNull(),
+  inputs: jsonb("inputs").notNull(),
+  output: jsonb("output").notNull(),
+  isFavorite: boolean("is_favorite").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow()
+}, (table) => ({
+  userIdIdx: index("history_user_id_idx").on(table.userId),
+  categoryIdx: index("history_category_idx").on(table.category),
+  createdAtIdx: index("history_created_at_idx").on(table.createdAt)
+}));
+
+export const sharedLinks = pgTable("shared_links", {
+  id: serial("id").primaryKey(),
+  shareId: varchar("share_id", { length: 20 }).notNull().unique(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "set null" }),
+  category: varchar("category", { length: 100 }).notNull(),
+  genType: varchar("gen_type", { length: 100 }).notNull(),
+  inputs: jsonb("inputs").notNull(),
+  output: jsonb("output").notNull(),
+  viewCount: integer("view_count").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow()
+}, (table) => ({
+  shareIdIdx: index("shared_links_share_id_idx").on(table.shareId)
+}));
+
+export const apiKeys = pgTable("api_keys", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  keyHash: varchar("key_hash", { length: 255 }).notNull().unique(),
+  keyPreview: varchar("key_preview", { length: 20 }).notNull(),
+  rateLimit: integer("rate_limit").notNull().default(100),
+  requestCount: integer("request_count").notNull().default(0),
+  lastUsedAt: timestamp("last_used_at"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow()
+}, (table) => ({
+  userIdIdx: index("api_keys_user_id_idx").on(table.userId),
+  keyHashIdx: index("api_keys_key_hash_idx").on(table.keyHash)
+}));
+
+// Insert schemas for type safety
+export const insertPresetSchema = createInsertSchema(presets).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertGenerationHistorySchema = createInsertSchema(generationHistory).omit({ id: true, createdAt: true });
+export const insertSharedLinkSchema = createInsertSchema(sharedLinks).omit({ id: true, createdAt: true });
+export const insertApiKeySchema = createInsertSchema(apiKeys).omit({ id: true, createdAt: true });
+
+// User types for Replit Auth compatibility
+export type UpsertUser = typeof users.$inferInsert;
+export type User = typeof users.$inferSelect;
+
+// Select types
+export type Preset = typeof presets.$inferSelect;
+export type GenerationHistory = typeof generationHistory.$inferSelect;
+export type SharedLink = typeof sharedLinks.$inferSelect;
+export type ApiKey = typeof apiKeys.$inferSelect;
+
+// Insert types
+export type InsertPreset = z.infer<typeof insertPresetSchema>;
+export type InsertGenerationHistory = z.infer<typeof insertGenerationHistorySchema>;
+export type InsertSharedLink = z.infer<typeof insertSharedLinkSchema>;
+export type InsertApiKey = z.infer<typeof insertApiKeySchema>;

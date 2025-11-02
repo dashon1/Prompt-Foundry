@@ -1,26 +1,48 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import {
+  getUser, saveGenerationHistory, getUserHistory,
+  createPreset, getUserPresets, updatePreset, deletePreset, togglePresetFavorite,
+  toggleHistoryFavorite, deleteHistory,
+  createSharedLink, getSharedLinkByShareId, getUserSharedLinks, deleteSharedLink,
+  createApiKey, getUserApiKeys, deleteApiKey, toggleApiKeyStatus
+} from "./storage";
 import { generatePrompt } from "./openai";
 import { GENERATOR_SCHEMAS, CATEGORIES, GENERATOR_TYPES } from "@shared/schema";
 import type { Category, GeneratorType } from "@shared/schema";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication
+  await setupAuth(app);
+
+  // Auth endpoint - get current user
+  app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   // Generator endpoint: POST /api/generator/:category/:genType
-  app.post("/api/generator/:category/:genType", async (req, res) => {
+  app.post("/api/generator/:category/:genType", async (req: any, res) => {
     try {
       const { category, genType } = req.params;
 
       // Validate category and genType
       if (!CATEGORIES.includes(category as Category)) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           error: "Unknown category",
           message: `Category '${category}' not found. Valid categories: ${CATEGORIES.join(", ")}`
         });
       }
 
       if (!GENERATOR_TYPES.includes(genType as GeneratorType)) {
-        return res.status(404).json({ 
+        return res.status(404).json({
           error: "Unknown generator type",
           message: `Generator type '${genType}' not found. Valid types: ${GENERATOR_TYPES.join(", ")}`
         });
@@ -28,11 +50,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get the schema for validation
       const schema = GENERATOR_SCHEMAS[category as Category][genType as GeneratorType];
-      
+
       // Validate request body
       const validationResult = schema.safeParse(req.body);
       if (!validationResult.success) {
-        return res.status(422).json({ 
+        return res.status(422).json({
           error: "Validation failed",
           message: "Input validation failed",
           details: validationResult.error.errors
@@ -46,44 +68,274 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validationResult.data
       );
 
-      // Optionally save to history
-      await storage.saveHistory({
+      // Save to history with userId if authenticated
+      const userId = req.isAuthenticated() ? req.user.claims.sub : null;
+      await saveGenerationHistory({
+        userId,
         category,
         genType,
         inputs: validationResult.data,
-        output: result.output,
-        timestamp: result.metadata.timestamp
+        output: result.output
       });
 
       // Return the result
       res.json(result);
     } catch (error: any) {
       console.error("Error generating prompt:", error);
-      res.status(500).json({ 
+      res.status(500).json({
         error: "Service error",
         message: error.message || "Failed to generate prompt. Please try again."
       });
     }
   });
 
-  // Optional: Get generator history
-  app.get("/api/history", async (req, res) => {
+  // Get user's generation history
+  app.get("/api/history", isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.claims.sub;
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
-      const history = await storage.getHistory(limit);
+      const history = await getUserHistory(userId, limit);
       res.json({ history });
     } catch (error: any) {
       console.error("Error fetching history:", error);
-      res.status(500).json({ 
+      res.status(500).json({
         error: "Service error",
         message: "Failed to fetch history"
       });
     }
   });
 
+  // Toggle history favorite
+  app.patch("/api/history/:id/favorite", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updated = await toggleHistoryFavorite(id);
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error toggling history favorite:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to update favorite status"
+      });
+    }
+  });
+
+  // Delete history item
+  app.delete("/api/history/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await deleteHistory(id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting history:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to delete history"
+      });
+    }
+  });
+
+  // Preset endpoints
+  app.get("/api/presets", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const presets = await getUserPresets(userId);
+      res.json({ presets });
+    } catch (error: any) {
+      console.error("Error fetching presets:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to fetch presets"
+      });
+    }
+  });
+
+  app.post("/api/presets", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const preset = await createPreset({
+        ...req.body,
+        userId
+      });
+      res.json(preset);
+    } catch (error: any) {
+      console.error("Error creating preset:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to create preset"
+      });
+    }
+  });
+
+  app.patch("/api/presets/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updated = await updatePreset(id, req.body);
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error updating preset:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to update preset"
+      });
+    }
+  });
+
+  app.patch("/api/presets/:id/favorite", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updated = await togglePresetFavorite(id);
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error toggling preset favorite:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to update favorite status"
+      });
+    }
+  });
+
+  app.delete("/api/presets/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await deletePreset(id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting preset:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to delete preset"
+      });
+    }
+  });
+
+  // Shared links endpoints
+  app.post("/api/share", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const link = await createSharedLink({
+        ...req.body,
+        userId
+      });
+      res.json(link);
+    } catch (error: any) {
+      console.error("Error creating shared link:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to create shared link"
+      });
+    }
+  });
+
+  app.get("/api/share/:shareId", async (req, res) => {
+    try {
+      const { shareId } = req.params;
+      const link = await getSharedLinkByShareId(shareId);
+      if (!link) {
+        return res.status(404).json({
+          error: "Not found",
+          message: "Shared link not found"
+        });
+      }
+      res.json(link);
+    } catch (error: any) {
+      console.error("Error fetching shared link:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to fetch shared link"
+      });
+    }
+  });
+
+  app.get("/api/shares", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const links = await getUserSharedLinks(userId);
+      res.json({ links });
+    } catch (error: any) {
+      console.error("Error fetching shared links:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to fetch shared links"
+      });
+    }
+  });
+
+  app.delete("/api/shares/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await deleteSharedLink(id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting shared link:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to delete shared link"
+      });
+    }
+  });
+
+  // API Keys endpoints
+  app.get("/api/keys", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const keys = await getUserApiKeys(userId);
+      res.json({ keys });
+    } catch (error: any) {
+      console.error("Error fetching API keys:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to fetch API keys"
+      });
+    }
+  });
+
+  app.post("/api/keys", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { name } = req.body;
+      const result = await createApiKey(userId, name);
+      res.json(result);
+    } catch (error: any) {
+      console.error("Error creating API key:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to create API key"
+      });
+    }
+  });
+
+  app.patch("/api/keys/:id/toggle", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updated = await toggleApiKeyStatus(id);
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error toggling API key:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to toggle API key"
+      });
+    }
+  });
+
+  app.delete("/api/keys/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await deleteApiKey(id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting API key:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to delete API key"
+      });
+    }
+  });
+
   // Health check endpoint
   app.get("/api/health", (req, res) => {
-    res.json({ 
+    res.json({
       status: "ok",
       timestamp: new Date().toISOString(),
       categories: CATEGORIES.length,

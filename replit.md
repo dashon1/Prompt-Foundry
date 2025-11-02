@@ -56,20 +56,33 @@ Preferred communication style: Simple, everyday language.
 
 ### Data Storage Solutions
 
-**Current Implementation:** In-memory storage (MemStorage class)
-- Generator history stored in Map data structure
-- No persistent database configured yet
-- Schema defined in `shared/schema.ts` using Zod
+**Current Implementation:** PostgreSQL database with Drizzle ORM
+- **Active Database:** PostgreSQL via @neondatabase/serverless
+- **ORM:** Drizzle with full type safety
+- **Schema Location:** `shared/schema.ts`
+- **Storage Layer:** `server/storage.ts` with comprehensive CRUD operations
 
-**Database Configuration (Prepared for PostgreSQL):**
-- Drizzle ORM configured with PostgreSQL dialect
-- Connection via @neondatabase/serverless
-- Migration directory: `./migrations`
-- Schema location: `./shared/schema.ts`
-- Database provisioned via DATABASE_URL environment variable
+**Database Tables:**
+1. **users** - Replit Auth compatible user accounts (varchar UUID primary key)
+2. **sessions** - PostgreSQL session store for authentication
+3. **presets** - User-saved generator configurations
+4. **generation_history** - All generated prompts with optional user association
+5. **shared_links** - Shareable prompt configurations with view tracking
+6. **api_keys** - User API keys for external integrations with rate limiting
 
-**Session Management:**
-- connect-pg-simple configured for PostgreSQL session store (not yet active)
+**Storage Operations:**
+- User management: `getUser()`, `upsertUser()`
+- Presets: `createPreset()`, `getUserPresets()`, `updatePreset()`, `deletePreset()`, `togglePresetFavorite()`
+- History: `saveGenerationHistory()`, `getUserHistory()`, `toggleHistoryFavorite()`, `deleteHistory()`
+- Shared Links: `createSharedLink()`, `getSharedLinkByShareId()`, `getUserSharedLinks()`, `deleteSharedLink()`
+- API Keys: `createApiKey()`, `verifyApiKey()`, `getUserApiKeys()`, `deleteApiKey()`, `toggleApiKeyStatus()`
+
+**Authentication:**
+- Replit Auth via OpenID Connect (openid-client)
+- Session management with connect-pg-simple
+- Auth routes: `/api/login`, `/api/logout`, `/api/callback`
+- Protected routes use `isAuthenticated` middleware
+- User profile endpoint: `/api/auth/user`
 
 ### Schema & Validation System
 
