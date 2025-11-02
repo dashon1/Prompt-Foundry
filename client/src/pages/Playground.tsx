@@ -184,6 +184,7 @@ export default function Playground() {
                 isLoading={generateMutation.isPending}
                 category={selectedCategory}
                 genType={selectedType}
+                inputs={currentInputs}
               />
             </div>
           </div>

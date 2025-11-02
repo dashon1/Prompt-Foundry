@@ -14,9 +14,10 @@ interface ResultPanelProps {
   isLoading: boolean;
   category: Category;
   genType: GeneratorType;
+  inputs?: any;
 }
 
-export function ResultPanel({ result, isLoading, category, genType }: ResultPanelProps) {
+export function ResultPanel({ result, isLoading, category, genType, inputs }: ResultPanelProps) {
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
   const [sharedUrl, setSharedUrl] = useState<string | null>(null);
@@ -26,7 +27,7 @@ export function ResultPanel({ result, isLoading, category, genType }: ResultPane
       return apiRequest("POST", "/api/shares", {
         category,
         genType,
-        inputs: result.metadata?.inputs || {},
+        inputs: inputs || {},
         output: result.output,
       });
     },
@@ -73,9 +74,9 @@ export function ResultPanel({ result, isLoading, category, genType }: ResultPane
     const exportData = {
       category,
       generatorType: genType,
-      generatedAt: new Date().toISOString(),
+      generatedAt: result?.metadata?.timestamp || new Date().toISOString(),
       output: result?.output || result,
-      inputs: result?.metadata?.inputs || {},
+      inputs: inputs || {},
       metadata: result?.metadata || {}
     };
     
@@ -119,9 +120,9 @@ export function ResultPanel({ result, isLoading, category, genType }: ResultPane
     }
     
     // Add inputs if available
-    if (result?.metadata?.inputs && Object.keys(result.metadata.inputs).length > 0) {
+    if (inputs && Object.keys(inputs).length > 0) {
       markdown += `## Inputs\n\n`;
-      markdown += "```json\n" + JSON.stringify(result.metadata.inputs, null, 2) + "\n```\n";
+      markdown += "```json\n" + JSON.stringify(inputs, null, 2) + "\n```\n";
     }
 
     const dataBlob = new Blob([markdown], { type: "text/markdown" });
