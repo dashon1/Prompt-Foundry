@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -6,9 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Sparkles } from "lucide-react";
-import { CATEGORY_METADATA, type Category, type GeneratorType, GENERATOR_TYPES } from "@shared/schema";
+import { CATEGORY_METADATA, type Category, type GeneratorType, GENERATOR_TYPES, type Preset } from "@shared/schema";
 import { DynamicForm } from "@/components/DynamicForm";
 import { ResultPanel } from "@/components/ResultPanel";
+import { PresetManager } from "@/components/PresetManager";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,6 +17,8 @@ export default function Playground() {
   const [selectedCategory, setSelectedCategory] = useState<Category>("image");
   const [selectedType, setSelectedType] = useState<GeneratorType>("prompt_generator");
   const [result, setResult] = useState<any>(null);
+  const [currentInputs, setCurrentInputs] = useState<any>({});
+  const formResetKeyRef = useRef(0);
   const { toast } = useToast();
 
   const generateMutation = useMutation({
@@ -55,7 +58,19 @@ export default function Playground() {
   });
 
   const handleSubmit = (data: any) => {
+    setCurrentInputs(data);
     generateMutation.mutate(data);
+  };
+
+  const handleLoadPreset = (preset: Preset) => {
+    setSelectedCategory(preset.category as Category);
+    setSelectedType(preset.genType as GeneratorType);
+    setCurrentInputs(preset.inputs);
+    formResetKeyRef.current += 1;
+    toast({
+      title: "Preset loaded",
+      description: `Loaded preset: ${preset.name}`,
+    });
   };
 
   const currentCategory = CATEGORY_METADATA.find(cat => cat.id === selectedCategory);
@@ -112,7 +127,7 @@ export default function Playground() {
             </CardHeader>
           </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="space-y-6">
               <Card>
                 <CardHeader>
@@ -134,6 +149,15 @@ export default function Playground() {
                 </CardContent>
               </Card>
 
+              <PresetManager
+                currentCategory={selectedCategory}
+                currentType={selectedType}
+                currentInputs={currentInputs}
+                onLoadPreset={handleLoadPreset}
+              />
+            </div>
+
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Inputs</CardTitle>
@@ -143,10 +167,12 @@ export default function Playground() {
                 </CardHeader>
                 <CardContent>
                   <DynamicForm
+                    key={formResetKeyRef.current}
                     category={selectedCategory}
                     genType={selectedType}
                     onSubmit={handleSubmit}
                     isSubmitting={generateMutation.isPending}
+                    initialValues={currentInputs}
                   />
                 </CardContent>
               </Card>

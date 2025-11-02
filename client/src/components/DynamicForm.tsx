@@ -15,9 +15,10 @@ interface DynamicFormProps {
   genType: GeneratorType;
   onSubmit: (data: any) => void;
   isSubmitting: boolean;
+  initialValues?: any;
 }
 
-export function DynamicForm({ category, genType, onSubmit, isSubmitting }: DynamicFormProps) {
+export function DynamicForm({ category, genType, onSubmit, isSubmitting, initialValues }: DynamicFormProps) {
   const schema = GENERATOR_SCHEMAS[category][genType];
   
   // Build default values from schema to keep form controlled
@@ -41,7 +42,7 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting }: Dynam
       }
     });
     
-    return defaults;
+    return { ...defaults, ...initialValues };
   };
   
   const form = useForm({
