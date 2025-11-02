@@ -9,6 +9,7 @@ import Home from "@/pages/Home";
 import Generators from "@/pages/Generators";
 import Playground from "@/pages/Playground";
 import API from "@/pages/API";
+import History from "@/pages/History";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/generators" component={Generators} />
       <Route path="/playground" component={Playground} />
       <Route path="/api" component={API} />
+      <Route path="/history" component={History} />
       <Route component={NotFound} />
     </Switch>
   );
