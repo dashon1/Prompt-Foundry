@@ -1,0 +1,523 @@
+I want to build a app prop generator These are the resources and links to use to help build the in fact not a app but a website slash app but the goal of it is to be a super prompt generator that whenever or whatever task is placed into it It was searched through the documentations and find the prompts and generate that to produce whatever it is we're trying to produce: {
+  "version": "1.0.0",
+  "site": {
+    "id": "best-prompt-generator",
+    "title": "Prompt Foundry — The Best Prompt Generator on the Web",
+    "tagline": "Design. Validate. Deploy. Prompts, agents, and generators for every use case.",
+    "url": "https://your-domain.com",
+    "brand": {
+      "logo_svg": "<svg><!-- your logo --></svg>",
+      "primary": "#0EA5E9",
+      "accent": "#22C55E",
+      "neutral": "#0F172A",
+      "background": "#0B1220",
+      "text": "#E2E8F0",
+      "font_headings": "Inter",
+      "font_body": "Inter"
+    },
+    "nav": [
+      { "label": "Home", "href": "/" },
+      { "label": "Generators", "href": "/generators" },
+      { "label": "Playground", "href": "/playground" },
+      { "label": "Docs", "href": "/docs" },
+      { "label": "API", "href": "/api" },
+      { "label": "About", "href": "/about" }
+    ],
+    "footer": {
+      "columns": [
+        { "title": "Product", "links": ["/generators", "/playground", "/pricing"] },
+        { "title": "Developers", "links": ["/api", "/docs", "/status"] },
+        { "title": "Company", "links": ["/about", "/privacy", "/terms"] }
+      ],
+      "copyright": "© {{year}} Prompt Foundry. All rights reserved."
+    },
+    "auth": {
+      "enabled": true,
+      "provider": "supabase",
+      "callbacks": {
+        "onLogin": "/dashboard",
+        "onLogout": "/"
+      }
+    },
+    "analytics": {
+      "enabled": true,
+      "provider": "plausible",
+      "site_id": "your-domain.com"
+    },
+    "seo": {
+      "og_image": "/og.png",
+      "twitter": "@your_handle",
+      "keywords": [
+        "prompt generator",
+        "best prompts",
+        "AI agents",
+        "OpenAPI prompt specs",
+        "Zod validation",
+        "Supabase Edge Functions"
+      ],
+      "schema_org": {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Prompt Foundry",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any"
+      }
+    }
+  },
+  "services": {
+    "apiBase": "https://<PROJECT-REF>.functions.supabase.co",
+    "functionBase": "/generator",
+    "endpoints": {
+      "pattern": "/generator/{category}/{genType}",
+      "categories": [
+        "image","video","youtube_titles","apps",
+        "marketing_content","visual_design","av_production",
+        "business_analysis","dev_tasks","personal_helper",
+        "strategy_innovation","data_decision","hyper_personalization",
+        "automation_augmentation","content_creation","science_rnd","hr_operations"
+      ],
+      "genTypes": ["prompt_generator","agent_helper","general_generator"]
+    },
+    "requestHeaders": {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer {{SUPABASE_ANON_OR_SERVICE_KEY}}"
+    },
+    "timeouts_ms": { "read": 30000, "write": 30000, "connect": 5000 }
+  },
+  "presets": {
+    "photorealism_addon": "unsmoothed skin, real imperfections, true physics lighting, physically accurate textures, no CGI sheen, no stylized rendering, zero AI perfection artifacts",
+    "image_defaults": {
+      "camera": { "lens": "85mm", "aperture": "f/1.8", "angle": "eye-level" },
+      "lighting": { "type": "soft diffused", "direction": "3/4 back", "time_of_day": "golden hour" }
+    },
+    "video_defaults": {
+      "duration_seconds": 12,
+      "lens_family": "35–50mm",
+      "motion": "slow, stable"
+    }
+  },
+  "components": {
+    "FormRenderer": {
+      "description": "Dynamic form renderer that reads schemas.inputs and builds controls",
+      "widgets": {
+        "string": "TextInput",
+        "number": "NumberInput",
+        "boolean": "Switch",
+        "array<string>": "TagInput",
+        "array<number>": "TagNumberInput",
+        "object": "JSONEditor"
+      },
+      "validation": "client: zod, server: edge function",
+      "submitBehavior": {
+        "method": "POST",
+        "urlTemplate": "{{apiBase}}{{functionBase}}/{{category}}/{{genType}}"
+      }
+    },
+    "Playground": {
+      "modes": ["Prompt","Agent","General"],
+      "features": [
+        "live validation",
+        "one-click cURL",
+        "save as preset",
+        "shareable link",
+        "history + diff"
+      ]
+    },
+    "ResultPanel": {
+      "tools": ["copy","downloadJSON","exportMarkdown","openInNew","savePreset"]
+    },
+    "CatalogGrid": {
+      "filters": ["category","genType","tags"],
+      "sort": ["alpha","new","popular"]
+    }
+  },
+  "workflows": {
+    "generate": {
+      "steps": [
+        "build_url_from(category, genType)",
+        "client_validate_with_zod(schema_key)",
+        "POST_to_edge_function",
+        "render_result",
+        "offer_actions(copy, save_preset, export)"
+      ],
+      "errors": {
+        "422": "Validation failed — highlight invalid fields",
+        "404": "Unknown category/genType — show catalog",
+        "5xx": "Service error — retry/backoff"
+      },
+      "rate_limits": { "burst": 10, "perMinute": 60 }
+    }
+  },
+  "routes": [
+    {
+      "path": "/",
+      "page": "Home",
+      "sections": [
+        { "type": "hero", "headline": "Build world-class prompts & agents", "subhead": "OpenAPI-like specs • Zod-validated • Supabase Edge ready", "cta": [{ "label": "Launch Playground", "href": "/playground" }, { "label": "Browse Generators", "href": "/generators" }] },
+        { "type": "logos", "items": ["openai","supabase","zod","typescript"] },
+        { "type": "features", "cards": [
+          { "title": "All Categories", "desc": "Images, Video, YouTube, Apps, Marketing, Design, AV, Analysis, Dev, Personal, Strategy, Data, Personalization, Automation, Creation, Science, HR." },
+          { "title": "Validated Inputs", "desc": "Zod on the edge. Zero bad payloads." },
+          { "title": "API-First", "desc": "OpenAPI-like specs + SDK scaffolds." }
+        ]},
+        { "type": "cta", "headline": "Create your first generator", "button": { "label": "Open Playground", "href": "/playground" } }
+      ]
+    },
+    {
+      "path": "/generators",
+      "page": "GeneratorsIndex",
+      "data": { "categories_from": "schemas" },
+      "sections": [
+        { "type": "catalog", "component": "CatalogGrid" }
+      ]
+    },
+    {
+      "path": "/playground",
+      "page": "Playground",
+      "params": { "category": null, "genType": null },
+      "sections": [
+        { "type": "tabs", "tabs": ["Prompt","Agent","General"] },
+        { "type": "form", "component": "FormRenderer" },
+        { "type": "results", "component": "ResultPanel" }
+      ]
+    },
+    {
+      "path": "/api",
+      "page": "API",
+      "sections": [
+        { "type": "markdown", "content": "### Endpoint\n`POST {{apiBase}}{{functionBase}}/{category}/{genType}`\n\nInclude `Authorization: Bearer <key>` and a JSON body structured per the schema." },
+        { "type": "code", "language": "yaml", "source": "aggregate_openapi_from(schemas)" },
+        { "type": "code", "language": "ts", "sourceFile": "/types/generators.d.ts" }
+      ]
+    }
+  ],
+  "schemas": {
+    "image": {
+      "prompt_generator": {
+        "inputs": {
+          "subject": "string",
+          "setting": "string",
+          "style_tags": ["string"],
+          "camera": { "lens": "string", "focal_length_mm": "number", "aperture": "string", "angle": "string", "distance": "string" },
+          "lighting": { "type": "string", "direction": "string", "time_of_day": "string" },
+          "mood": "string",
+          "color_palette": ["string"],
+          "composition": "string",
+          "technical": ["string"],
+          "negatives": ["string"]
+        },
+        "output": { "final_prompt": "string" },
+        "hints": [
+          "Append photorealism_addon preset for maximum realism",
+          "Avoid logos/text unless necessary"
+        ]
+      },
+      "agent_helper": {
+        "inputs": { "subject": "string", "setting": "string", "lighting_type": "string", "lens": "string" },
+        "output": { "final_prompt": "string", "negatives": ["string"] }
+      },
+      "general_generator": {
+        "inputs": { "item": "string", "context": "string", "visual_intent": "string", "camera_prefs": "string", "lighting_prefs": "string", "mood": "string", "negatives": "string" },
+        "output": { "final_prompt": "string" }
+      }
+    },
+    "video": {
+      "prompt_generator": {
+        "inputs": {
+          "concept": "string",
+          "duration_seconds": "number",
+          "shots": [{ "id": "number", "description": "string", "camera": "string", "motion": "string" }],
+          "look_and_feel": ["string"],
+          "audio": { "type": "string", "notes": "string" }
+        },
+        "output": { "sequence_prompt": "string" }
+      },
+      "agent_helper": {
+        "inputs": { "duration_seconds": "number", "shots": [{ "description": "string", "camera": "string", "motion": "string" }], "audio": "string" },
+        "output": { "sequence_prompt": "string", "shot_table": "string" }
+      },
+      "general_generator": {
+        "inputs": { "topic_or_item": "string", "duration_seconds": "number", "visual_style": "string", "camera_style": "string", "audio_style": "string" },
+        "output": { "sequence_prompt": "string" }
+      }
+    },
+    "youtube_titles": {
+      "prompt_generator": {
+        "inputs": {
+          "topic": "string",
+          "audience": "string",
+          "tone": "string",
+          "constraints": { "max_words": "number", "power_words_required": "boolean", "case_style": "string" },
+          "quantity": "number"
+        },
+        "output": { "titles": ["string"] }
+      },
+      "agent_helper": {
+        "inputs": { "draft_titles": ["string"], "max_words": "number", "return_top_k": "number" },
+        "output": { "ranked_titles": ["string"], "notes": "string" }
+      },
+      "general_generator": {
+        "inputs": { "item_or_topic": "string", "angle": "string", "tone": "string", "max_words": "number", "count": "number" },
+        "output": { "titles": ["string"] }
+      }
+    },
+    "apps": {
+      "prompt_generator": {
+        "inputs": {
+          "app_concept": "string",
+          "platforms": ["string"],
+          "core_features": ["string"],
+          "non_functional": ["string"],
+          "stack_preferences": { "frontend": "string", "backend": "string", "db": "string", "auth": "string" }
+        },
+        "output": { "outline": "string" }
+      },
+      "agent_helper": {
+        "inputs": { "core_features": ["string"], "stack_preferences": { "frontend": "string", "backend": "string", "db": "string", "auth": "string" }, "non_functional": ["string"] },
+        "output": { "architecture_outline": "string", "risk_notes": "string" }
+      },
+      "general_generator": {
+        "inputs": { "item_type": "string", "goal": "string", "constraints": ["string"], "language_or_stack": "string", "mode": "string" },
+        "output": { "result": "string" }
+      }
+    },
+    "marketing_content": {
+      "prompt_generator": {
+        "inputs": { "asset_type": "string", "topic": "string", "audience": "string", "goal": "string", "tone": "string", "length": "string", "keywords": ["string"], "cta": "string", "channels": ["string"] },
+        "output": { "brief": "string" }
+      },
+      "agent_helper": {
+        "inputs": { "topic": "string", "audience": "string", "goal": "string", "keywords": ["string"] },
+        "output": { "funnel_stage": "string", "outline": "string", "brief": "string" }
+      },
+      "general_generator": {
+        "inputs": { "asset_type": "string", "topic": "string", "audience": "string", "goal": "string", "tone": "string", "length": "string", "mode": "string" },
+        "output": { "content": "string" }
+      }
+    },
+    "visual_design": {
+      "prompt_generator": {
+        "inputs": { "artifact_type": "string", "theme": "string", "use_case": "string", "brand_attributes": ["string"], "color_palette": ["string"], "constraints": ["string"], "deliverable_format": "string" },
+        "output": { "design_brief": "string" }
+      },
+      "agent_helper": {
+        "inputs": { "brand_attributes": ["string"], "color_palette": ["string"], "export_formats": ["string"] },
+        "output": { "layout_systems": "string", "handoff_specs": "string", "qa_checklist": ["string"] }
+      },
+      "general_generator": {
+        "inputs": { "artifact_type": "string", "theme": "string", "constraints": ["string"], "export": "string" },
+        "output": { "brief": "string" }
+      }
+    },
+    "av_production": {
+      "prompt_generator": {
+        "inputs": { "asset_type": "string", "concept": "string", "duration": "string", "shots_or_sections": "string", "visual_style": "string", "audio_style": "string", "output_specs": "string" },
+        "output": { "plan": "string" }
+      },
+      "agent_helper": {
+        "inputs": { "duration_seconds": "number", "sections": "number", "audio_style": "string" },
+        "output": { "shotlist": "string", "timecodes": "string", "continuity_notes": "string" }
+      },
+      "general_generator": {
+        "inputs": { "asset_type": "string", "duration": "string", "style": "string", "audio": "string" },
+        "output": { "plan": "string" }
+      }
+    },
+    "business_analysis": {
+      "prompt_generator": {
+        "inputs": { "task": "string", "data_sources": ["string"], "scope": "string", "metrics_or_signals": ["string"], "output_type": "string", "constraints": ["string"] },
+        "output": { "brief": "string" }
+      },
+      "agent_helper": {
+        "inputs": { "facts": ["string"], "insight_targets": ["string"] },
+        "output": { "insights": "string", "actions": "string", "caveats": "string" }
+      },
+      "general_generator": {
+        "inputs": { "analysis_type": "string", "topic": "string", "data_refs": "string", "audience": "string" },
+        "output": { "analysis": "string" }
+      }
+    },
+    "dev_tasks": {
+      "prompt_generator": {
+        "inputs": { "task_type": "string", "language": "string", "framework": "string", "constraints": ["string"], "context": "string" },
+        "output": { "code_and_explanation": "string" }
+      },
+      "agent_helper": {
+        "inputs": { "code": "string", "language": "string" },
+        "output": { "review_notes": "string", "improvements": "string", "tests": "string" }
+      },
+      "general_generator": {
+        "inputs": { "mode": "string", "language": "string", "framework": "string", "goal": "string", "constraints": ["string"] },
+        "output": { "result": "string" }
+      }
+    },
+    "personal_helper": {
+      "prompt_generator": {
+        "inputs": { "task": "string", "context": "string", "tone": "string", "length": "string", "extras": ["string"] },
+        "output": { "draft": "string", "checklist": ["string"] }
+      },
+      "agent_helper": {
+        "inputs": { "intent": "string", "constraints": ["string"] },
+        "output": { "variant_a": "string", "variant_b": "string", "final": "string", "next_steps": ["string"] }
+      },
+      "general_generator": {
+        "inputs": { "item_type": "string", "topic_or_destination": "string", "constraints": ["string"], "tone": "string" },
+        "output": { "content": "string", "actions": ["string"] }
+      }
+    },
+    "strategy_innovation": {
+      "prompt_generator": {
+        "inputs": { "initiative_type": "string", "objective": "string", "market_context": "string", "constraints": ["string"], "horizon": "string", "stakeholders": ["string"] },
+        "output": { "strategic_brief": "string" }
+      },
+      "agent_helper": {
+        "inputs": { "objective": "string", "decision_window": "string" },
+        "output": { "scenarios": "string", "risks": "string", "decision_rules": "string" }
+      },
+      "general_generator": {
+        "inputs": { "mode": "string", "goal": "string", "context": "string", "constraints": ["string"] },
+        "output": { "strategy": "string" }
+      }
+    },
+    "data_decision": {
+      "prompt_generator": {
+        "inputs": { "task": "string", "datasets": ["string"], "target_metric": "string", "time_window": "string", "constraints": ["string"], "explainability": "string" },
+        "output": { "analysis_plan": "string" }
+      },
+      "agent_helper": {
+        "inputs": { "data_profile": "string" },
+        "output": { "top_signals": "string", "validation": "string", "decision_pack": "string" }
+      },
+      "general_generator": {
+        "inputs": { "analysis_type": "string", "question": "string", "data_refs": ["string"], "audience": "string" },
+        "output": { "analysis": "string" }
+      }
+    },
+    "hyper_personalization": {
+      "prompt_generator": {
+        "inputs": { "channel": "string", "persona": "string", "goal": "string", "content_types": ["string"], "constraints": ["string"], "variants": "number" },
+        "output": { "variants": "string" }
+      },
+      "agent_helper": {
+        "inputs": { "persona_fields": ["string"], "messages": ["string"] },
+        "output": { "field_map": "string", "scores": "string", "notes": "string" }
+      },
+      "general_generator": {
+        "inputs": { "asset": "string", "persona": "string", "goal": "string", "fields": ["string"], "count": "number" },
+        "output": { "variants": "string", "test_plan": "string" }
+      }
+    },
+    "automation_augmentation": {
+      "prompt_generator": {
+        "inputs": { "use_case": "string", "systems": ["string"], "triggers": ["string"], "actions": ["string"], "human_in_loop": "string", "slo": "string" },
+        "output": { "workflow_design": "string" }
+      },
+      "agent_helper": {
+        "inputs": { "steps": ["string"], "permissions": ["string"] },
+        "output": { "runbook": "string", "metrics": ["string"] }
+      },
+      "general_generator": {
+        "inputs": { "goal": "string", "apps": ["string"], "trigger": "string", "steps": ["string"], "approvals": "string" },
+        "output": { "workflow": "string" }
+      }
+    },
+    "content_creation": {
+      "prompt_generator": {
+        "inputs": { "artifact": "string", "goal": "string", "constraints": ["string"], "quantity": "number", "structure": "string" },
+        "output": { "batch_plan": "string" }
+      },
+      "agent_helper": {
+        "inputs": { "topics": ["string"] },
+        "output": { "canonical_list": "string", "scores": "string", "samples_for_review": "string", "production_batch": "string" }
+      },
+      "general_generator": {
+        "inputs": { "artifact": "string", "count": "number", "style": "string", "constraints": ["string"] },
+        "output": { "brief": "string", "variants": "string", "qc": "string" }
+      }
+    },
+    "science_rnd": {
+      "prompt_generator": {
+        "inputs": { "field": "string", "hypothesis": "string", "data_or_sim": "string", "constraints": ["string"], "success_criteria": "string" },
+        "output": { "experiment_plan": "string" }
+      },
+      "agent_helper": {
+        "inputs": { "variables": ["string"] },
+        "output": { "protocol": "string", "data_schema": "string", "analysis_plan": "string" }
+      },
+      "general_generator": {
+        "inputs": { "study_type": "string", "goal": "string", "resources": "string", "constraints": ["string"] },
+        "output": { "protocol_or_sim": "string" }
+      }
+    },
+    "hr_operations": {
+      "prompt_generator": {
+        "inputs": { "task": "string", "role_or_team": "string", "criteria": ["string"], "constraints": ["string"], "output_type": "string" },
+        "output": { "sop_or_rubric": "string" }
+      },
+      "agent_helper": {
+        "inputs": { "criteria": ["string"], "weights": ["number"] },
+        "output": { "sop": "string", "audit_trail": "string" }
+      },
+      "general_generator": {
+        "inputs": { "process": "string", "goal": "string", "constraints": ["string"], "stakeholders": ["string"] },
+        "output": { "sop": "string" }
+      }
+    }
+  },
+  "ux": {
+    "playground_defaults": {
+      "category": "image",
+      "genType": "prompt_generator",
+      "prefill": {
+        "subject": "red fox",
+        "setting": "misty forest clearing at dawn",
+        "style_tags": ["editorial realism","8K clarity"],
+        "camera": { "lens": "Leica APO", "focal_length_mm": 90, "aperture": "f/2.0", "angle": "eye-level", "distance": "close-up" },
+        "lighting": { "type": "soft diffused", "direction": "back-left rim", "time_of_day": "dawn" },
+        "mood": "serene",
+        "color_palette": ["warm gold","forest green","soft gray"],
+        "composition": "subject centered with shallow DOF, bokeh trees",
+        "technical": ["true-to-life color","physically accurate textures","zero artifacts"],
+        "negatives": ["no collars","no text"]
+      }
+    },
+    "actions": {
+      "copyResult": true,
+      "downloadJSON": true,
+      "exportMarkdown": true,
+      "savePreset": true
+    },
+    "toasts": {
+      "success": "Generated successfully.",
+      "error": "Something went wrong. Please try again."
+    }
+  },
+  "security": {
+    "headers": {
+      "csp": "default-src 'self'; img-src 'self' data: https:; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.functions.supabase.co;",
+      "frame_options": "DENY",
+      "referrer_policy": "strict-origin-when-cross-origin"
+    },
+    "rate_limits": { "ip_per_minute": 60, "auth_per_minute": 120 },
+    "audit": { "enabled": true, "log_to": "supabase" }
+  },
+  "dev": {
+    "build": {
+      "framework": "Next.js (recommended) or any SPA",
+      "steps": [
+        "Render Catalog from schemas.* keys",
+        "Render dynamic Form from schemas[cat][type].inputs",
+        "POST to /generator/{cat}/{type}",
+        "Render outputs and tool actions"
+      ]
+    },
+    "types": {
+      "zod_entrypoint": "/types/zod-schemas.ts",
+      "ts_types": "/types/generators.d.ts"
+    },
+    "openapi": {
+      "folder": "/specs/openapi",
+      "aggregate": "merge YAMLs into one if desired"
+    }
+  }
+}
