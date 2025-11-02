@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import pLimit from "p-limit";
-import pRetry from "p-retry";
+import pRetry, { AbortError } from "p-retry";
 import type { Category, GeneratorType } from "@shared/schema";
 
 // This is using Replit's AI Integrations service, which provides OpenAI-compatible API access without requiring your own OpenAI API key.
@@ -208,7 +208,7 @@ export async function generatePrompt(
             throw error; // Rethrow to trigger p-retry
           }
           // For non-rate-limit errors, throw immediately (don't retry)
-          throw new pRetry.AbortError(error);
+          throw new AbortError(error);
         }
       },
       {
