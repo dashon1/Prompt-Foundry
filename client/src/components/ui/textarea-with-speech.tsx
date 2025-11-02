@@ -11,15 +11,7 @@ interface TextareaWithSpeechProps extends React.ComponentProps<"textarea"> {
 
 const TextareaWithSpeech = React.forwardRef<HTMLTextAreaElement, TextareaWithSpeechProps>(
   ({ className, onSpeechResult, onChange, value, ...props }, ref) => {
-    const [localValue, setLocalValue] = React.useState(value || "");
-
-    React.useEffect(() => {
-      setLocalValue(value || "");
-    }, [value]);
-
     const handleSpeechResult = React.useCallback((transcript: string) => {
-      setLocalValue(transcript);
-      
       if (onSpeechResult) {
         onSpeechResult(transcript);
       }
@@ -42,13 +34,8 @@ const TextareaWithSpeech = React.forwardRef<HTMLTextAreaElement, TextareaWithSpe
         <Textarea
           ref={ref}
           className={cn("pr-10", className)}
-          onChange={(e) => {
-            setLocalValue(e.target.value);
-            if (onChange) {
-              onChange(e);
-            }
-          }}
-          value={localValue}
+          onChange={onChange}
+          value={value}
           {...props}
         />
         <Button

@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { InputWithSpeech } from "@/components/ui/input-with-speech";
 import { TextareaWithSpeech } from "@/components/ui/textarea-with-speech";
 import { Switch } from "@/components/ui/switch";
@@ -155,7 +156,7 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
             <FormItem>
               <FormLabel className="capitalize">{fieldName.replace(/_/g, " ")}</FormLabel>
               <FormControl>
-                <InputWithSpeech
+                <Input
                   type="number"
                   placeholder={getPlaceholder(fieldName)}
                   {...field}
@@ -246,6 +247,8 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
           <h4 className="font-medium capitalize">{fieldName.replace(/_/g, " ")}</h4>
           {Object.entries(objectFields).map(([nestedField, nestedSchema]: any) => {
             const nestedType = nestedSchema._def?.typeName;
+            const isNumber = nestedType === "ZodNumber";
+            
             return (
               <FormField
                 key={`${fieldName}.${nestedField}`}
@@ -257,16 +260,21 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
                       {nestedField.replace(/_/g, " ")}
                     </FormLabel>
                     <FormControl>
-                      <InputWithSpeech
-                        type={nestedType === "ZodNumber" ? "number" : "text"}
-                        placeholder={getPlaceholder(nestedField)}
-                        {...field}
-                        onChange={(e) => {
-                          const value = nestedType === "ZodNumber" ? parseFloat(e.target.value) : e.target.value;
-                          field.onChange(value);
-                        }}
-                        data-testid={`input-${fieldName}-${nestedField}`}
-                      />
+                      {isNumber ? (
+                        <Input
+                          type="number"
+                          placeholder={getPlaceholder(nestedField)}
+                          {...field}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                          data-testid={`input-${fieldName}-${nestedField}`}
+                        />
+                      ) : (
+                        <InputWithSpeech
+                          placeholder={getPlaceholder(nestedField)}
+                          {...field}
+                          data-testid={`input-${fieldName}-${nestedField}`}
+                        />
+                      )}
                     </FormControl>
                     <FormMessage />
                   </FormItem>

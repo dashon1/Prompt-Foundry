@@ -10,16 +10,8 @@ interface InputWithSpeechProps extends React.ComponentProps<"input"> {
 }
 
 const InputWithSpeech = React.forwardRef<HTMLInputElement, InputWithSpeechProps>(
-  ({ className, onSpeechResult, onChange, value, ...props }, ref) => {
-    const [localValue, setLocalValue] = React.useState(value || "");
-
-    React.useEffect(() => {
-      setLocalValue(value || "");
-    }, [value]);
-
+  ({ className, onSpeechResult, onChange, value, onKeyDown, ...props }, ref) => {
     const handleSpeechResult = React.useCallback((transcript: string) => {
-      setLocalValue(transcript);
-      
       if (onSpeechResult) {
         onSpeechResult(transcript);
       }
@@ -42,13 +34,9 @@ const InputWithSpeech = React.forwardRef<HTMLInputElement, InputWithSpeechProps>
         <Input
           ref={ref}
           className={cn("pr-10 flex-1", className)}
-          onChange={(e) => {
-            setLocalValue(e.target.value);
-            if (onChange) {
-              onChange(e);
-            }
-          }}
-          value={localValue}
+          onChange={onChange}
+          onKeyDown={onKeyDown}
+          value={value}
           {...props}
         />
         <Button
