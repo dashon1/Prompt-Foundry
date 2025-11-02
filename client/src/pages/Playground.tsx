@@ -35,9 +35,20 @@ export default function Playground() {
       });
     },
     onError: (error: any) => {
+      // Show detailed validation errors if available
+      let description = error.message || "Failed to generate prompt";
+      
+      if (error.details && Array.isArray(error.details)) {
+        const errorMessages = error.details
+          .map((err: any) => `${err.path.join('.')}: ${err.message}`)
+          .slice(0, 3)
+          .join('; ');
+        description = errorMessages || description;
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to generate prompt",
+        description,
         variant: "destructive"
       });
     }

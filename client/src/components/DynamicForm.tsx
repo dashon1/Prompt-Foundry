@@ -20,9 +20,33 @@ interface DynamicFormProps {
 export function DynamicForm({ category, genType, onSubmit, isSubmitting }: DynamicFormProps) {
   const schema = GENERATOR_SCHEMAS[category][genType];
   
+  // Build default values from schema to keep form controlled
+  const getDefaultValues = () => {
+    const defaults: any = {};
+    const fields = schema._def.shape();
+    
+    Object.entries(fields).forEach(([fieldName, fieldSchema]: any) => {
+      const fieldType = fieldSchema._def?.typeName;
+      
+      if (fieldType === "ZodBoolean") {
+        defaults[fieldName] = false;
+      } else if (fieldType === "ZodNumber") {
+        defaults[fieldName] = 0;
+      } else if (fieldType === "ZodArray") {
+        defaults[fieldName] = [];
+      } else if (fieldType === "ZodObject") {
+        defaults[fieldName] = {};
+      } else {
+        defaults[fieldName] = "";
+      }
+    });
+    
+    return defaults;
+  };
+  
   const form = useForm({
     resolver: zodResolver(schema),
-    defaultValues: {}
+    defaultValues: getDefaultValues()
   });
 
   const renderField = (fieldName: string, fieldSchema: any) => {
