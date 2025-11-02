@@ -21,6 +21,72 @@ interface DynamicFormProps {
 export function DynamicForm({ category, genType, onSubmit, isSubmitting, initialValues }: DynamicFormProps) {
   const schema = GENERATOR_SCHEMAS[category][genType];
   
+  // Get contextual placeholder text for form fields
+  const getPlaceholder = (fieldName: string): string => {
+    const placeholders: Record<string, string> = {
+      // Image fields
+      subject: "A majestic lion in the savanna",
+      setting: "Golden hour on a desert landscape",
+      style_tags: "cinematic, dramatic, professional photography",
+      camera: "Canon EOS R5, 85mm f/1.4",
+      lighting: "Soft natural light from the side",
+      mood: "Peaceful and contemplative",
+      color_palette: "Warm earth tones, golden yellows",
+      composition: "Rule of thirds, subject in left third",
+      
+      // Video fields
+      duration: "30",
+      lens: "Wide angle 24mm",
+      motion: "Slow pan from left to right",
+      audio: "Ambient nature sounds with soft music",
+      
+      // YouTube fields
+      topic: "How to build a REST API",
+      target_audience: "Beginner web developers",
+      keywords: "API, REST, tutorial, coding",
+      
+      // App fields
+      app_name: "TaskMaster Pro",
+      platform: "Web and mobile (iOS, Android)",
+      features: "Task tracking, reminders, collaboration",
+      
+      // Marketing fields
+      product_name: "EcoBottle",
+      audience: "Environmentally conscious millennials",
+      goal: "Increase brand awareness and conversions",
+      tone: "Friendly, inspiring, eco-focused",
+      
+      // Design fields
+      design_type: "Logo design for a coffee shop",
+      brand_values: "Artisanal, warm, community-focused",
+      
+      // General fields
+      context: "This project aims to solve the problem of...",
+      description: "A detailed explanation of what you need...",
+      requirements: "Must be mobile-responsive and accessible",
+      constraints: "Budget: $5000, Timeline: 2 weeks",
+      notes: "Additional thoughts or special considerations",
+      
+      // Business fields
+      industry: "SaaS, B2B software",
+      company_size: "50-100 employees",
+      challenge: "High customer churn rate",
+      
+      // Content fields
+      title: "10 Ways to Boost Your Productivity",
+      content_type: "Blog post",
+      word_count: "1500",
+      
+      // Technical fields
+      tech_stack: "React, Node.js, PostgreSQL",
+      language: "TypeScript",
+      framework: "Next.js",
+    };
+    
+    // Return specific placeholder or generate a generic one
+    return placeholders[fieldName] || `Enter ${fieldName.replace(/_/g, " ")}...`;
+  };
+  
   // Build default values from schema to keep form controlled
   const getDefaultValues = () => {
     const defaults: any = {};
@@ -91,6 +157,7 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
               <FormControl>
                 <Input
                   type="number"
+                  placeholder={getPlaceholder(fieldName)}
                   {...field}
                   onChange={(e) => field.onChange(parseFloat(e.target.value))}
                   data-testid={`input-${fieldName}`}
@@ -139,7 +206,7 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
                           addItem();
                         }
                       }}
-                      placeholder="Type and press Enter"
+                      placeholder={`${getPlaceholder(fieldName)} (press Enter to add)`}
                       data-testid={`input-${fieldName}`}
                     />
                     <Button type="button" onClick={addItem} variant="outline" size="icon" data-testid={`button-add-${fieldName}`}>
@@ -192,6 +259,7 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
                     <FormControl>
                       <Input
                         type={nestedType === "ZodNumber" ? "number" : "text"}
+                        placeholder={getPlaceholder(nestedField)}
                         {...field}
                         onChange={(e) => {
                           const value = nestedType === "ZodNumber" ? parseFloat(e.target.value) : e.target.value;
@@ -226,10 +294,15 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
                 <Textarea
                   {...field}
                   rows={3}
+                  placeholder={getPlaceholder(fieldName)}
                   data-testid={`textarea-${fieldName}`}
                 />
               ) : (
-                <Input {...field} data-testid={`input-${fieldName}`} />
+                <Input 
+                  {...field} 
+                  placeholder={getPlaceholder(fieldName)}
+                  data-testid={`input-${fieldName}`} 
+                />
               )}
             </FormControl>
             <FormMessage />
