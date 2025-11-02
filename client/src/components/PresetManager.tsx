@@ -129,22 +129,9 @@ export function PresetManager({
   const favoritePresets = filteredPresets.filter((p) => p.isFavorite);
   const otherPresets = filteredPresets.filter((p) => !p.isFavorite);
 
+  // Don't show presets section at all if not authenticated
   if (!isAuthenticated) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Presets</CardTitle>
-          <CardDescription>Log in to save and load presets</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <a href="/api/login">
-            <Button className="w-full" data-testid="button-login-presets">
-              Log In to Save Presets
-            </Button>
-          </a>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
   return (

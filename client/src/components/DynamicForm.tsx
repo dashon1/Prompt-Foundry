@@ -10,6 +10,7 @@ import { GENERATOR_SCHEMAS, type Category, type GeneratorType } from "@shared/sc
 import { Loader2, Wand2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
+import { useState } from "react";
 
 interface DynamicFormProps {
   category: Category;
@@ -19,69 +20,138 @@ interface DynamicFormProps {
   initialValues?: any;
 }
 
+// Separate component for array fields to avoid conditional hooks
+function ArrayFieldInput({ field, fieldName, placeholder }: { field: any; fieldName: string; placeholder: string }) {
+  const values = field.value || [];
+  const [inputValue, setInputValue] = useState("");
+
+  const addItem = () => {
+    if (inputValue.trim()) {
+      field.onChange([...values, inputValue.trim()]);
+      setInputValue("");
+    }
+  };
+
+  const removeItem = (index: number) => {
+    const newValues = values.filter((_: any, i: number) => i !== index);
+    field.onChange(newValues);
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-2">
+        <InputWithSpeech
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addItem();
+            }
+          }}
+          placeholder={`${placeholder} (press Enter to add)`}
+          data-testid={`input-${fieldName}`}
+        />
+        <Button type="button" onClick={addItem} variant="outline" size="icon" data-testid={`button-add-${fieldName}`}>
+          +
+        </Button>
+      </div>
+      {values.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {values.map((item: any, index: number) => (
+            <Badge key={index} variant="secondary" className="gap-1" data-testid={`badge-${fieldName}-${index}`}>
+              {item}
+              <button
+                type="button"
+                onClick={() => removeItem(index)}
+                className="hover-elevate rounded-full"
+                data-testid={`button-remove-${fieldName}-${index}`}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function DynamicForm({ category, genType, onSubmit, isSubmitting, initialValues }: DynamicFormProps) {
   const schema = GENERATOR_SCHEMAS[category][genType];
   
-  // Get contextual placeholder text for form fields
+  // Get contextual placeholder text for form fields with helpful examples
   const getPlaceholder = (fieldName: string): string => {
     const placeholders: Record<string, string> = {
+      // General Generator fields - AI input examples
+      item: "Example: A cyberpunk city at night with neon lights",
+      topic_or_item: "Example: Tutorial on building a chatbot with Python",
+      context: "Example: This is for a tech startup's website hero section, targeting developers aged 25-35",
+      visual_intent: "Example: Modern, sleek, minimalist with bold colors",
+      camera_prefs: "Example: Wide angle for landscapes, or close-up for portraits",
+      lighting_prefs: "Example: Dramatic side lighting for mood, or soft natural light for warmth",
+      visual_style: "Example: Cinematic with slow motion effects",
+      camera_style: "Example: Handheld documentary style with natural movement",
+      audio_style: "Example: Upbeat electronic music with ambient city sounds",
+      
       // Image fields
-      subject: "A majestic lion in the savanna",
-      setting: "Golden hour on a desert landscape",
-      style_tags: "cinematic, dramatic, professional photography",
-      camera: "Canon EOS R5, 85mm f/1.4",
-      lighting: "Soft natural light from the side",
-      mood: "Peaceful and contemplative",
-      color_palette: "Warm earth tones, golden yellows",
-      composition: "Rule of thirds, subject in left third",
+      subject: "Example: A majestic lion standing on a cliff",
+      setting: "Example: African savanna at sunset with golden light",
+      style_tags: "Example: cinematic, dramatic, ultra-realistic, 8K",
+      lighting_type: "Example: Natural sunlight, studio lighting, or dramatic shadows",
+      lens: "Example: 85mm for portraits, 24mm for landscapes",
+      mood: "Example: Peaceful and contemplative, or energetic and exciting",
+      color_palette: "Example: Warm earth tones, cool blues and purples",
+      composition: "Example: Rule of thirds with subject in left third",
+      negatives: "Example: blurry, low quality, distorted",
       
       // Video fields
-      duration: "30",
-      lens: "Wide angle 24mm",
-      motion: "Slow pan from left to right",
-      audio: "Ambient nature sounds with soft music",
+      concept: "Example: A day in the life of a coffee shop owner",
+      duration_seconds: "Example: 30 (for social media) or 120 (for YouTube)",
+      motion: "Example: Slow dolly push-in, smooth pan from left to right",
+      audio: "Example: Upbeat indie music with cafe ambient sounds",
       
       // YouTube fields
-      topic: "How to build a REST API",
-      target_audience: "Beginner web developers",
-      keywords: "API, REST, tutorial, coding",
+      topic: "Example: How to master TypeScript in 2024",
+      target_audience: "Example: Junior developers learning modern web development",
+      audience: "Example: Tech-savvy millennials interested in productivity",
+      keywords: "Example: TypeScript, JavaScript, tutorial, coding, web dev",
+      tone: "Example: Friendly, educational, encouraging",
+      draft_titles: "Example: 10 TypeScript Tips You NEED to Know",
       
       // App fields
-      app_name: "TaskMaster Pro",
-      platform: "Web and mobile (iOS, Android)",
-      features: "Task tracking, reminders, collaboration",
+      app_name: "Example: TaskFlow Pro",
+      platform: "Example: iOS, Android, and Web (React Native)",
+      features: "Example: Task management, team collaboration, time tracking",
       
       // Marketing fields
-      product_name: "EcoBottle",
-      audience: "Environmentally conscious millennials",
-      goal: "Increase brand awareness and conversions",
-      tone: "Friendly, inspiring, eco-focused",
+      product_name: "Example: EcoBottle - Sustainable Water Bottle",
+      goal: "Example: Increase brand awareness and drive conversions by 25%",
       
       // Design fields
-      design_type: "Logo design for a coffee shop",
-      brand_values: "Artisanal, warm, community-focused",
-      
-      // General fields
-      context: "This project aims to solve the problem of...",
-      description: "A detailed explanation of what you need...",
-      requirements: "Must be mobile-responsive and accessible",
-      constraints: "Budget: $5000, Timeline: 2 weeks",
-      notes: "Additional thoughts or special considerations",
+      design_type: "Example: Modern logo for a tech startup",
+      brand_values: "Example: Innovation, trust, sustainability, user-focused",
       
       // Business fields
-      industry: "SaaS, B2B software",
-      company_size: "50-100 employees",
-      challenge: "High customer churn rate",
+      industry: "Example: SaaS, B2B software for small businesses",
+      company_size: "Example: 50-100 employees, mid-sized company",
+      challenge: "Example: High customer churn rate in first 90 days",
       
       // Content fields
-      title: "10 Ways to Boost Your Productivity",
-      content_type: "Blog post",
-      word_count: "1500",
+      title: "Example: 10 Proven Ways to Boost Your Productivity in 2024",
+      content_type: "Example: Blog post, social media thread, email newsletter",
+      word_count: "Example: 1500 words for blog, 300 for social media",
       
       // Technical fields
-      tech_stack: "React, Node.js, PostgreSQL",
-      language: "TypeScript",
-      framework: "Next.js",
+      tech_stack: "Example: React, TypeScript, Node.js, PostgreSQL, Docker",
+      language: "Example: TypeScript, Python, Go",
+      framework: "Example: Next.js, Express, FastAPI",
+      
+      // Generic helpful fields
+      description: "Example: A detailed explanation of your requirements and goals",
+      requirements: "Example: Must be mobile-responsive, accessible (WCAG 2.1), fast loading",
+      constraints: "Example: Budget: $5,000, Timeline: 2 weeks, Team size: 3",
+      notes: "Example: Additional context, special considerations, or preferences",
     };
     
     // Return specific placeholder or generate a generic one
@@ -134,11 +204,16 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
   const renderField = (fieldName: string, fieldSchema: any) => {
     // Handle ZodDefault wrapper - unwrap it to get the actual type
     let actualSchema = fieldSchema;
+    let hasDefault = false;
     if (fieldSchema._def?.typeName === "ZodDefault") {
       actualSchema = fieldSchema._def.innerType;
+      hasDefault = true;
     }
     
     const fieldType = actualSchema._def?.typeName;
+    
+    // Check if field is optional (has .optional() or has a default)
+    const isOptional = actualSchema._def?.typeName === "ZodOptional" || hasDefault;
 
     if (fieldType === "ZodBoolean") {
       return (
@@ -149,8 +224,9 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
           render={({ field }) => (
             <FormItem className="flex items-center justify-between rounded-lg border border-border p-4">
               <div className="space-y-0.5">
-                <FormLabel className="text-base capitalize">
+                <FormLabel className="text-base capitalize flex items-center gap-2">
                   {fieldName.replace(/_/g, " ")}
+                  {isOptional && <Badge variant="outline" className="text-xs">Optional</Badge>}
                 </FormLabel>
               </div>
               <FormControl>
@@ -174,7 +250,10 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
           name={fieldName}
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="capitalize">{fieldName.replace(/_/g, " ")}</FormLabel>
+              <FormLabel className="capitalize flex items-center gap-2">
+                {fieldName.replace(/_/g, " ")}
+                {isOptional && <Badge variant="outline" className="text-xs">Optional</Badge>}
+              </FormLabel>
               <FormControl>
                 <Input
                   type="number"
@@ -197,65 +276,20 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
           key={fieldName}
           control={form.control}
           name={fieldName}
-          render={({ field }) => {
-            const values = field.value || [];
-            const [inputValue, setInputValue] = React.useState("");
-
-            const addItem = () => {
-              if (inputValue.trim()) {
-                field.onChange([...values, inputValue.trim()]);
-                setInputValue("");
-              }
-            };
-
-            const removeItem = (index: number) => {
-              const newValues = values.filter((_: any, i: number) => i !== index);
-              field.onChange(newValues);
-            };
-
-            return (
-              <FormItem>
-                <FormLabel className="capitalize">{fieldName.replace(/_/g, " ")}</FormLabel>
-                <div className="space-y-2">
-                  <div className="flex gap-2">
-                    <InputWithSpeech
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          addItem();
-                        }
-                      }}
-                      placeholder={`${getPlaceholder(fieldName)} (press Enter to add)`}
-                      data-testid={`input-${fieldName}`}
-                    />
-                    <Button type="button" onClick={addItem} variant="outline" size="icon" data-testid={`button-add-${fieldName}`}>
-                      +
-                    </Button>
-                  </div>
-                  {values.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {values.map((item: any, index: number) => (
-                        <Badge key={index} variant="secondary" className="gap-1" data-testid={`badge-${fieldName}-${index}`}>
-                          {item}
-                          <button
-                            type="button"
-                            onClick={() => removeItem(index)}
-                            className="hover-elevate rounded-full"
-                            data-testid={`button-remove-${fieldName}-${index}`}
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <FormMessage />
-              </FormItem>
-            );
-          }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="capitalize flex items-center gap-2">
+                {fieldName.replace(/_/g, " ")}
+                {isOptional && <Badge variant="outline" className="text-xs">Optional</Badge>}
+              </FormLabel>
+              <ArrayFieldInput 
+                field={field} 
+                fieldName={fieldName} 
+                placeholder={getPlaceholder(fieldName)} 
+              />
+              <FormMessage />
+            </FormItem>
+          )}
         />
       );
     }
@@ -264,7 +298,10 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
       const objectFields = actualSchema._def?.shape?.() || {};
       return (
         <div key={fieldName} className="space-y-4 p-4 border border-border rounded-lg">
-          <h4 className="font-medium capitalize">{fieldName.replace(/_/g, " ")}</h4>
+          <h4 className="font-medium capitalize flex items-center gap-2">
+            {fieldName.replace(/_/g, " ")}
+            {isOptional && <Badge variant="outline" className="text-xs">Optional</Badge>}
+          </h4>
           {Object.entries(objectFields).map(([nestedField, nestedSchema]: any) => {
             // Handle ZodDefault wrapper for nested fields too
             let actualNestedSchema = nestedSchema;
@@ -321,7 +358,10 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
         name={fieldName}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="capitalize">{fieldName.replace(/_/g, " ")}</FormLabel>
+            <FormLabel className="capitalize flex items-center gap-2">
+              {fieldName.replace(/_/g, " ")}
+              {isOptional && <Badge variant="outline" className="text-xs">Optional</Badge>}
+            </FormLabel>
             <FormControl>
               {isLongField ? (
                 <TextareaWithSpeech
@@ -377,5 +417,3 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
     </Form>
   );
 }
-
-import React from "react";
