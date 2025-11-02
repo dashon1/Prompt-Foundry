@@ -90,26 +90,40 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
   
   // Build default values from schema to keep form controlled
   const getDefaultValues = () => {
-    const defaults: any = {};
-    const fields = schema._def.shape();
-    
-    Object.entries(fields).forEach(([fieldName, fieldSchema]: any) => {
-      const fieldType = fieldSchema._def?.typeName;
+    // Parse empty object through schema to get all defaults
+    try {
+      const defaults = schema.parse({});
+      return { ...defaults, ...initialValues };
+    } catch {
+      // If schema parse fails, build defaults manually
+      const defaults: any = {};
+      const shape = (schema as any).shape || (schema as any)._def?.shape?.();
       
-      if (fieldType === "ZodBoolean") {
-        defaults[fieldName] = false;
-      } else if (fieldType === "ZodNumber") {
-        defaults[fieldName] = 0;
-      } else if (fieldType === "ZodArray") {
-        defaults[fieldName] = [];
-      } else if (fieldType === "ZodObject") {
-        defaults[fieldName] = {};
-      } else {
-        defaults[fieldName] = "";
+      if (shape) {
+        Object.entries(shape).forEach(([fieldName, fieldSchema]: any) => {
+          const fieldType = fieldSchema._def?.typeName;
+          
+          // Check if field has a default
+          if (fieldSchema._def?.defaultValue !== undefined) {
+            defaults[fieldName] = typeof fieldSchema._def.defaultValue === 'function' 
+              ? fieldSchema._def.defaultValue()
+              : fieldSchema._def.defaultValue;
+          } else if (fieldType === "ZodBoolean") {
+            defaults[fieldName] = false;
+          } else if (fieldType === "ZodNumber") {
+            defaults[fieldName] = 0;
+          } else if (fieldType === "ZodArray") {
+            defaults[fieldName] = [];
+          } else if (fieldType === "ZodObject") {
+            defaults[fieldName] = {};
+          } else {
+            defaults[fieldName] = "";
+          }
+        });
       }
-    });
-    
-    return { ...defaults, ...initialValues };
+      
+      return { ...defaults, ...initialValues };
+    }
   };
   
   const form = useForm({
@@ -118,7 +132,13 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
   });
 
   const renderField = (fieldName: string, fieldSchema: any) => {
-    const fieldType = fieldSchema._def?.typeName;
+    // Handle ZodDefault wrapper - unwrap it to get the actual type
+    let actualSchema = fieldSchema;
+    if (fieldSchema._def?.typeName === "ZodDefault") {
+      actualSchema = fieldSchema._def.innerType;
+    }
+    
+    const fieldType = actualSchema._def?.typeName;
 
     if (fieldType === "ZodBoolean") {
       return (
@@ -241,12 +261,17 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
     }
 
     if (fieldType === "ZodObject") {
-      const objectFields = fieldSchema._def.shape();
+      const objectFields = actualSchema._def?.shape?.() || {};
       return (
         <div key={fieldName} className="space-y-4 p-4 border border-border rounded-lg">
           <h4 className="font-medium capitalize">{fieldName.replace(/_/g, " ")}</h4>
           {Object.entries(objectFields).map(([nestedField, nestedSchema]: any) => {
-            const nestedType = nestedSchema._def?.typeName;
+            // Handle ZodDefault wrapper for nested fields too
+            let actualNestedSchema = nestedSchema;
+            if (nestedSchema._def?.typeName === "ZodDefault") {
+              actualNestedSchema = nestedSchema._def.innerType;
+            }
+            const nestedType = actualNestedSchema._def?.typeName;
             const isNumber = nestedType === "ZodNumber";
             
             return (
@@ -320,7 +345,8 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
     );
   };
 
-  const fields = schema._def.shape();
+  const shape = (schema as any).shape || (schema as any)._def?.shape?.();
+  const fields = shape || {};
 
   return (
     <Form {...form}>
