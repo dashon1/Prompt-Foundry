@@ -1,37 +1,40 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
+// Storage interface for Prompt Foundry
+// Using in-memory storage for generator history (optional feature)
 
-// modify the interface with any CRUD methods
-// you might need
+export interface GeneratorHistory {
+  id: string;
+  category: string;
+  genType: string;
+  inputs: any;
+  output: any;
+  timestamp: string;
+}
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  // Optional: Store generator history for future features
+  saveHistory(history: Omit<GeneratorHistory, 'id'>): Promise<GeneratorHistory>;
+  getHistory(limit?: number): Promise<GeneratorHistory[]>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private history: Map<string, GeneratorHistory>;
 
   constructor() {
-    this.users = new Map();
+    this.history = new Map();
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async saveHistory(historyData: Omit<GeneratorHistory, 'id'>): Promise<GeneratorHistory> {
+    const id = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    const history: GeneratorHistory = { ...historyData, id };
+    this.history.set(id, history);
+    return history;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async getHistory(limit = 50): Promise<GeneratorHistory[]> {
+    const allHistory = Array.from(this.history.values());
+    return allHistory
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, limit);
   }
 }
 
