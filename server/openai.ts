@@ -191,8 +191,12 @@ export async function generatePrompt(
             throw new Error("No content in response");
           }
 
+          console.log("OpenAI raw response content:", content);
+
           // Parse and validate JSON response
           const output = JSON.parse(content);
+          
+          console.log("Parsed output:", JSON.stringify(output, null, 2));
           
           return {
             output,
