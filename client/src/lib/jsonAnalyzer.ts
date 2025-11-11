@@ -1,0 +1,133 @@
+import { GENERATOR_SCHEMAS, CATEGORIES, GENERATOR_TYPES, type Category, type GeneratorType } from "@shared/schema";
+
+export interface N8nWorkflow {
+  id?: string | number;
+  name?: string;
+  nodes?: Array<{
+    id?: string;
+    name: string;
+    type: string;
+    position?: number[];
+    parameters?: any;
+  }>;
+  connections?: any;
+  settings?: any;
+  active?: boolean;
+  [key: string]: any;
+}
+
+export interface PromptConfig {
+  category?: Category;
+  genType?: GeneratorType;
+  inputs?: any;
+  [key: string]: any;
+}
+
+export type DetectedJSONType = 
+  | { type: "n8n_workflow"; workflow: N8nWorkflow; confidence: number }
+  | { type: "prompt_config"; category: Category; genType: GeneratorType; inputs: any; confidence: number }
+  | { type: "unknown"; error: string };
+
+export function detectJSONType(jsonData: any): DetectedJSONType {
+  if (!jsonData || typeof jsonData !== 'object') {
+    return { type: "unknown", error: "Invalid JSON data" };
+  }
+
+  const isN8nWorkflow = jsonData.nodes && Array.isArray(jsonData.nodes);
+  if (isN8nWorkflow) {
+    return {
+      type: "n8n_workflow",
+      workflow: jsonData,
+      confidence: 0.95
+    };
+  }
+
+  if (jsonData.category && jsonData.genType && jsonData.inputs) {
+    const isValidCategory = CATEGORIES.includes(jsonData.category);
+    const isValidGenType = GENERATOR_TYPES.includes(jsonData.genType);
+    
+    if (isValidCategory && isValidGenType) {
+      return {
+        type: "prompt_config",
+        category: jsonData.category,
+        genType: jsonData.genType,
+        inputs: jsonData.inputs,
+        confidence: 0.99
+      };
+    }
+  }
+
+  const bestMatch = findBestPromptConfigMatch(jsonData);
+  if (bestMatch) {
+    return {
+      type: "prompt_config",
+      category: bestMatch.category,
+      genType: bestMatch.genType,
+      inputs: jsonData,
+      confidence: bestMatch.confidence
+    };
+  }
+
+  return { type: "unknown", error: "Could not determine JSON type" };
+}
+
+function findBestPromptConfigMatch(jsonData: any): { category: Category; genType: GeneratorType; confidence: number } | null {
+  let bestMatch: { category: Category; genType: GeneratorType; confidence: number } | null = null;
+  let highestScore = 0;
+
+  for (const category of CATEGORIES) {
+    for (const genType of GENERATOR_TYPES) {
+      const schema = GENERATOR_SCHEMAS[category]?.[genType];
+      if (!schema) continue;
+
+      const result = schema.safeParse(jsonData);
+      if (result.success) {
+        const matchScore = calculateMatchScore(jsonData, schema);
+        if (matchScore > highestScore) {
+          highestScore = matchScore;
+          bestMatch = { category, genType, confidence: matchScore };
+        }
+      }
+    }
+  }
+
+  return highestScore > 0.5 ? bestMatch : null;
+}
+
+function calculateMatchScore(jsonData: any, schema: any): number {
+  const dataKeys = Object.keys(jsonData);
+  const schemaShape = schema._def?.schema?.shape || {};
+  const schemaKeys = Object.keys(schemaShape);
+  
+  if (schemaKeys.length === 0) return 0;
+
+  const matchingKeys = dataKeys.filter(key => schemaKeys.includes(key));
+  return matchingKeys.length / Math.max(schemaKeys.length, dataKeys.length);
+}
+
+export function analyzeN8nWorkflow(workflow: N8nWorkflow) {
+  const nodes = workflow.nodes || [];
+  const nodesUsed = Array.from(new Set(nodes.map(n => n.type)));
+  
+  let workflowType = "unknown";
+  if (nodes.some(n => n.type.toLowerCase().includes("trigger"))) {
+    workflowType = "automated";
+  }
+  if (nodes.some(n => n.type.toLowerCase().includes("http") || n.type.toLowerCase().includes("webhook"))) {
+    workflowType = "webhook";
+  }
+  if (nodes.some(n => n.type.toLowerCase().includes("email"))) {
+    workflowType = "email_automation";
+  }
+  if (nodes.some(n => n.type.toLowerCase().includes("database") || n.type.toLowerCase().includes("sql"))) {
+    workflowType = "data_processing";
+  }
+
+  return {
+    name: workflow.name || "Untitled Workflow",
+    workflowType,
+    nodesUsed,
+    nodeCount: nodes.length,
+    isActive: workflow.active || false
+  };
+}

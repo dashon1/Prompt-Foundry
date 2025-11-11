@@ -10,8 +10,10 @@ import { CATEGORY_METADATA, type Category, type GeneratorType, GENERATOR_TYPES, 
 import { DynamicForm } from "@/components/DynamicForm";
 import { ResultPanel } from "@/components/ResultPanel";
 import { PresetManager } from "@/components/PresetManager";
+import { JSONImportExport } from "@/components/JSONImportExport";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import type { N8nWorkflow } from "@/lib/jsonAnalyzer";
 
 export default function Playground() {
   const [selectedCategory, setSelectedCategory] = useState<Category>("image");
@@ -71,6 +73,57 @@ export default function Playground() {
       title: "Preset loaded",
       description: `Loaded preset: ${preset.name}`,
     });
+  };
+
+  const handleImportPromptConfig = (category: Category, genType: GeneratorType, inputs: any) => {
+    setSelectedCategory(category);
+    setSelectedType(genType);
+    setCurrentInputs(inputs);
+    formResetKeyRef.current += 1;
+  };
+
+  const handleImportN8nWorkflow = async (workflow: N8nWorkflow) => {
+    try {
+      const response = await apiRequest("POST", "/api/workflows/analyze", { workflow });
+      
+      setSelectedCategory(response.suggestedCategory || "automation_augmentation");
+      setSelectedType("prompt_generator");
+      setCurrentInputs(response.extractedInputs || {});
+      formResetKeyRef.current += 1;
+
+      let savedToLibrary = false;
+      try {
+        await apiRequest("POST", "/api/workflows", {
+          name: workflow.name || "Imported Workflow",
+          description: `${response.workflowType} with ${response.nodeCount} nodes`,
+          workflowData: workflow,
+          workflowType: response.workflowType,
+          nodesUsed: response.nodesUsed,
+          tags: []
+        });
+        savedToLibrary = true;
+      } catch (saveError: any) {
+        console.error("Failed to save workflow to library:", saveError);
+        toast({
+          title: "Warning",
+          description: "Workflow analyzed but could not be saved to library",
+          variant: "destructive",
+        });
+      }
+
+      toast({
+        title: "n8n workflow converted",
+        description: savedToLibrary 
+          ? `Analyzed ${response.nodeCount} nodes and saved to library`
+          : `Analyzed ${response.nodeCount} nodes`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error analyzing workflow",
+        description: error.message || "Failed to analyze n8n workflow",
+        variant: "destructive",
+      });
+    }
   };
 
   const currentCategory = CATEGORY_METADATA.find(cat => cat.id === selectedCategory);
@@ -154,6 +207,14 @@ export default function Playground() {
                 currentType={selectedType}
                 currentInputs={currentInputs}
                 onLoadPreset={handleLoadPreset}
+              />
+
+              <JSONImportExport
+                currentCategory={selectedCategory}
+                currentType={selectedType}
+                currentInputs={currentInputs}
+                onImportPromptConfig={handleImportPromptConfig}
+                onImportN8nWorkflow={handleImportN8nWorkflow}
               />
             </div>
 

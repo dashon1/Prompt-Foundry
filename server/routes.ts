@@ -5,7 +5,8 @@ import {
   createPreset, getUserPresets, updatePreset, deletePreset, togglePresetFavorite,
   toggleHistoryFavorite, deleteHistory,
   createSharedLink, getSharedLinkByShareId, getUserSharedLinks, deleteSharedLink,
-  createApiKey, getUserApiKeys, deleteApiKey, toggleApiKeyStatus
+  createApiKey, getUserApiKeys, deleteApiKey, toggleApiKeyStatus,
+  createN8nWorkflow, getUserN8nWorkflows, deleteN8nWorkflow, toggleN8nWorkflowFavorite
 } from "./storage";
 import { generatePrompt } from "./openai";
 import { GENERATOR_SCHEMAS, CATEGORIES, GENERATOR_TYPES } from "@shared/schema";
@@ -85,6 +86,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         error: "Service error",
         message: error.message || "Failed to generate prompt. Please try again."
+      });
+    }
+  });
+
+  // Analyze n8n workflow and convert to prompt inputs (requires authentication)
+  app.post("/api/workflows/analyze", isAuthenticated, async (req: any, res) => {
+    try {
+      const { workflow } = req.body;
+      
+      if (!workflow || !workflow.nodes || !Array.isArray(workflow.nodes)) {
+        return res.status(400).json({
+          error: "Invalid workflow",
+          message: "Workflow must contain a valid nodes array"
+        });
+      }
+
+      const nodes = workflow.nodes || [];
+      const nodeCount = nodes.length;
+      
+      const validNodes = nodes.filter((n: any) => n && typeof n.type === 'string');
+      const nodesUsed = Array.from(new Set(validNodes.map((n: any) => n.type)));
+      
+      let workflowType = "general automation";
+      if (validNodes.some((n: any) => n.type.toLowerCase().includes("trigger"))) {
+        workflowType = "event-driven automation";
+      }
+      if (validNodes.some((n: any) => n.type.toLowerCase().includes("http") || n.type.toLowerCase().includes("webhook"))) {
+        workflowType = "API integration";
+      }
+
+      const workflowDescription = `${workflowType} workflow with ${nodeCount} nodes (${nodesUsed.join(", ")})`;
+      
+      const extractedInputs = {
+        task_description: `Create an automation similar to this n8n workflow: ${workflow.name || "Untitled"}`,
+        workflow_details: workflowDescription,
+        nodes_used: nodesUsed.join(", "),
+        desired_outcome: `Replicate the functionality of ${nodeCount} interconnected nodes handling ${workflowType}`
+      };
+
+      res.json({
+        suggestedCategory: "automation_augmentation",
+        extractedInputs,
+        nodeCount,
+        nodesUsed,
+        workflowType
+      });
+    } catch (error: any) {
+      console.error("Error analyzing workflow:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to analyze workflow"
       });
     }
   });
@@ -329,6 +381,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         error: "Service error",
         message: "Failed to delete API key"
+      });
+    }
+  });
+
+  // n8n Workflow endpoints
+  app.get("/api/workflows", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const workflows = await getUserN8nWorkflows(userId);
+      res.json({ workflows });
+    } catch (error: any) {
+      console.error("Error fetching workflows:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to fetch workflows"
+      });
+    }
+  });
+
+  app.post("/api/workflows", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { name, description, workflowData, workflowType, nodesUsed, tags } = req.body;
+      
+      const workflow = await createN8nWorkflow({
+        userId,
+        name,
+        description,
+        workflowData,
+        workflowType,
+        nodesUsed,
+        tags
+      });
+      
+      res.json(workflow);
+    } catch (error: any) {
+      console.error("Error saving workflow:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to save workflow"
+      });
+    }
+  });
+
+  app.patch("/api/workflows/:id/favorite", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updated = await toggleN8nWorkflowFavorite(id);
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error toggling workflow favorite:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to toggle favorite"
+      });
+    }
+  });
+
+  app.delete("/api/workflows/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await deleteN8nWorkflow(id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error deleting workflow:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to delete workflow"
       });
     }
   });

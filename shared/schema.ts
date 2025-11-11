@@ -1839,11 +1839,29 @@ export const apiKeys = pgTable("api_keys", {
   keyHashIdx: index("api_keys_key_hash_idx").on(table.keyHash)
 }));
 
+export const n8nWorkflows = pgTable("n8n_workflows", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  workflowData: jsonb("workflow_data").notNull(),
+  workflowType: varchar("workflow_type", { length: 100 }),
+  nodesUsed: text("nodes_used").array(),
+  tags: text("tags").array(),
+  isFavorite: boolean("is_favorite").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow()
+}, (table) => ({
+  userIdIdx: index("n8n_workflows_user_id_idx").on(table.userId),
+  workflowTypeIdx: index("n8n_workflows_type_idx").on(table.workflowType)
+}));
+
 // Insert schemas for type safety
 export const insertPresetSchema = createInsertSchema(presets).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertGenerationHistorySchema = createInsertSchema(generationHistory).omit({ id: true, createdAt: true });
 export const insertSharedLinkSchema = createInsertSchema(sharedLinks).omit({ id: true, createdAt: true });
 export const insertApiKeySchema = createInsertSchema(apiKeys).omit({ id: true, createdAt: true });
+export const insertN8nWorkflowSchema = createInsertSchema(n8nWorkflows).omit({ id: true, createdAt: true, updatedAt: true });
 
 // User types for Replit Auth compatibility
 export type UpsertUser = typeof users.$inferInsert;
@@ -1854,9 +1872,11 @@ export type Preset = typeof presets.$inferSelect;
 export type GenerationHistory = typeof generationHistory.$inferSelect;
 export type SharedLink = typeof sharedLinks.$inferSelect;
 export type ApiKey = typeof apiKeys.$inferSelect;
+export type N8nWorkflow = typeof n8nWorkflows.$inferSelect;
 
 // Insert types
 export type InsertPreset = z.infer<typeof insertPresetSchema>;
 export type InsertGenerationHistory = z.infer<typeof insertGenerationHistorySchema>;
 export type InsertSharedLink = z.infer<typeof insertSharedLinkSchema>;
 export type InsertApiKey = z.infer<typeof insertApiKeySchema>;
+export type InsertN8nWorkflow = z.infer<typeof insertN8nWorkflowSchema>;

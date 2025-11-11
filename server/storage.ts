@@ -1,8 +1,8 @@
 import { db } from "./db";
 import { 
-  users, presets, generationHistory, sharedLinks, apiKeys,
-  type User, type Preset, type GenerationHistory, type SharedLink, type ApiKey,
-  type UpsertUser, type InsertPreset, type InsertGenerationHistory, type InsertSharedLink, type InsertApiKey
+  users, presets, generationHistory, sharedLinks, apiKeys, n8nWorkflows,
+  type User, type Preset, type GenerationHistory, type SharedLink, type ApiKey, type N8nWorkflow,
+  type UpsertUser, type InsertPreset, type InsertGenerationHistory, type InsertSharedLink, type InsertApiKey, type InsertN8nWorkflow
 } from "@shared/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -196,4 +196,42 @@ export async function toggleApiKeyStatus(id: number): Promise<ApiKey | undefined
     .where(eq(apiKeys.id, id))
     .returning();
   return updated;
+}
+
+// n8n Workflow operations
+export async function createN8nWorkflow(workflowData: InsertN8nWorkflow): Promise<N8nWorkflow> {
+  const [workflow] = await db.insert(n8nWorkflows).values(workflowData).returning();
+  return workflow;
+}
+
+export async function getUserN8nWorkflows(userId: string): Promise<N8nWorkflow[]> {
+  return db.query.n8nWorkflows.findMany({
+    where: eq(n8nWorkflows.userId, userId),
+    orderBy: [desc(n8nWorkflows.createdAt)]
+  });
+}
+
+export async function getN8nWorkflowById(id: number): Promise<N8nWorkflow | undefined> {
+  return db.query.n8nWorkflows.findFirst({
+    where: eq(n8nWorkflows.id, id)
+  });
+}
+
+export async function updateN8nWorkflow(id: number, updates: Partial<Omit<InsertN8nWorkflow, 'userId'>>): Promise<N8nWorkflow | undefined> {
+  const [updated] = await db.update(n8nWorkflows)
+    .set({ ...updates, updatedAt: new Date() })
+    .where(eq(n8nWorkflows.id, id))
+    .returning();
+  return updated;
+}
+
+export async function deleteN8nWorkflow(id: number): Promise<void> {
+  await db.delete(n8nWorkflows).where(eq(n8nWorkflows.id, id));
+}
+
+export async function toggleN8nWorkflowFavorite(id: number): Promise<N8nWorkflow | undefined> {
+  const workflow = await getN8nWorkflowById(id);
+  if (!workflow) return undefined;
+  
+  return updateN8nWorkflow(id, { isFavorite: !workflow.isFavorite });
 }
