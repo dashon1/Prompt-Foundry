@@ -59,11 +59,12 @@ export function detectJSONType(jsonData: any): DetectedJSONType {
 
   const bestMatch = findBestPromptConfigMatch(jsonData);
   if (bestMatch) {
+    const normalizedInputs = normalizeFieldNames(jsonData);
     return {
       type: "prompt_config",
       category: bestMatch.category,
       genType: bestMatch.genType,
-      inputs: jsonData,
+      inputs: normalizedInputs,
       confidence: bestMatch.confidence
     };
   }
@@ -71,18 +72,35 @@ export function detectJSONType(jsonData: any): DetectedJSONType {
   return { type: "unknown", error: "Could not determine JSON type" };
 }
 
+function normalizeFieldNames(obj: any): any {
+  if (!obj || typeof obj !== 'object') return obj;
+  
+  if (Array.isArray(obj)) {
+    return obj.map(item => normalizeFieldNames(item));
+  }
+  
+  const normalized: any = {};
+  for (const key in obj) {
+    const normalizedKey = key.toLowerCase().replace(/\s+/g, '');
+    normalized[normalizedKey] = normalizeFieldNames(obj[key]);
+  }
+  return normalized;
+}
+
 function findBestPromptConfigMatch(jsonData: any): { category: Category; genType: GeneratorType; confidence: number } | null {
   let bestMatch: { category: Category; genType: GeneratorType; confidence: number } | null = null;
   let highestScore = 0;
+
+  const normalizedData = normalizeFieldNames(jsonData);
 
   for (const category of CATEGORIES) {
     for (const genType of GENERATOR_TYPES) {
       const schema = GENERATOR_SCHEMAS[category]?.[genType];
       if (!schema) continue;
 
-      const result = schema.safeParse(jsonData);
+      const result = schema.safeParse(normalizedData);
       if (result.success) {
-        const matchScore = calculateMatchScore(jsonData, schema);
+        const matchScore = calculateMatchScore(normalizedData, schema);
         if (matchScore > highestScore) {
           highestScore = matchScore;
           bestMatch = { category, genType, confidence: matchScore };
