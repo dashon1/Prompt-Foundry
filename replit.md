@@ -62,17 +62,19 @@ Preferred communication style: Simple, everyday language.
 - **Schema Location:** `shared/schema.ts`
 - **Storage Layer:** `server/storage.ts` with comprehensive CRUD operations
 
-**Database Tables:**
+**Database Tables (Updated November 11, 2025):**
 1. **users** - Replit Auth compatible user accounts (varchar UUID primary key)
 2. **sessions** - PostgreSQL session store for authentication
 3. **presets** - User-saved generator configurations
 4. **generation_history** - All generated prompts with optional user association
 5. **shared_links** - Shareable prompt configurations with view tracking
 6. **api_keys** - User API keys for external integrations with rate limiting
+7. **n8n_workflows** - Stored n8n workflow JSONs for reference library (userId, name, description, workflowData jsonb, workflowType, nodesUsed text[], tags text[], isFavorite, timestamps)
 
 **Storage Operations:**
 - User management: `getUser()`, `upsertUser()`
 - Presets: `createPreset()`, `getUserPresets()`, `updatePreset()`, `deletePreset()`, `togglePresetFavorite()`
+- n8n Workflows: `createN8nWorkflow()`, `getUserN8nWorkflows()`, `getN8nWorkflowById()`, `updateN8nWorkflow()`, `deleteN8nWorkflow()`, `toggleN8nWorkflowFavorite()`
 - History: `saveGenerationHistory()`, `getUserHistory()`, `toggleHistoryFavorite()`, `deleteHistory()`
 - Shared Links: `createSharedLink()`, `getSharedLinkByShareId()`, `getUserSharedLinks()`, `deleteSharedLink()`
 - API Keys: `createApiKey()`, `verifyApiKey()`, `getUserApiKeys()`, `deleteApiKey()`, `toggleApiKeyStatus()`
@@ -142,3 +144,47 @@ Preferred communication style: Simple, everyday language.
 - Vite: Frontend bundling and dev server
 - esbuild: Server-side bundling for production
 - PostCSS with Tailwind CSS and Autoprefixer
+
+## Recent Features (November 11, 2025)
+
+### JSON Import/Export System
+Unified JSON upload/download functionality in the Playground that supports two types of files:
+
+**1. Prompt Configuration JSONs:**
+- Auto-detects category and generator type from JSON structure
+- Validates against all 68 category schemas to find best match
+- Automatically switches to detected category/type and populates form
+- Download format: `prompt-foundry-{category}-{YYYYMMDD}.json`
+
+**2. n8n Workflow JSONs:**
+- Detects workflows by presence of `nodes` array
+- Analyzes workflow structure: node types, connections, workflow purpose
+- Converts workflow logic to automation prompt inputs
+- Automatically saves to workflow reference library
+- Suggests category (typically automation_augmentation)
+
+**Implementation:**
+- Client-side file processing with 200KB limit for security
+- `client/src/lib/jsonAnalyzer.ts`: Type detection and schema validation
+- `client/src/components/JSONImportExport.tsx`: Drag-and-drop UI component
+- `POST /api/workflows/analyze` (authenticated): Server-side n8n workflow analysis
+
+### AI-Assisted Field Completion
+Intelligent form field suggestions using OpenAI to fill empty required fields.
+
+**Features:**
+- Schema-based empty field detection (respects optional/default values)
+- Handles falsy values correctly (0, false are not considered empty)
+- Uses category context + current form values + optional workflow context
+- Single "AI Assist" button in Inputs card header
+- Shows loading state during generation
+- Automatically merges suggestions into form
+
+**Implementation:**
+- `POST /api/ai-assist` (authenticated): OpenAI-powered field suggestion endpoint
+- `callOpenAIChat()` helper in `server/openai.ts`: Generic OpenAI wrapper with retry logic
+- Frontend mutation in Playground.tsx with schema introspection
+- Last uploaded workflow automatically included as context
+
+**Authentication Requirements:**
+Both JSON workflow analysis and AI assist features require user authentication to prevent abuse and ensure proper workflow library access.
