@@ -83,7 +83,22 @@ function normalizeFieldNames(obj: any): any {
   for (const key in obj) {
     // Convert "Style Tags" to "style_tags", "CAMERA" to "camera", "Focal Length mm" to "focal_length_mm"
     const normalizedKey = key.toLowerCase().replace(/\s+/g, '_');
-    normalized[normalizedKey] = normalizeFieldNames(obj[key]);
+    let value = obj[key];
+    
+    // Special handling for certain fields
+    if (normalizedKey === 'focal_length_mm' && typeof value === 'string') {
+      // Convert "24" to 24
+      const num = parseFloat(value);
+      value = isNaN(num) ? value : num;
+    } else if (normalizedKey === 'color_palette' && typeof value === 'string') {
+      // Convert "Deep twilight blues, dark silhouettes" to array
+      value = value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+    } else if (typeof value === 'object' && !Array.isArray(value)) {
+      // Recursively normalize nested objects
+      value = normalizeFieldNames(value);
+    }
+    
+    normalized[normalizedKey] = value;
   }
   return normalized;
 }
@@ -93,6 +108,7 @@ function findBestPromptConfigMatch(jsonData: any): { category: Category; genType
   let highestScore = 0;
 
   const normalizedData = normalizeFieldNames(jsonData);
+  console.log("Normalized data:", normalizedData);
 
   for (const category of CATEGORIES) {
     for (const genType of GENERATOR_TYPES) {
@@ -102,6 +118,7 @@ function findBestPromptConfigMatch(jsonData: any): { category: Category; genType
       const result = schema.safeParse(normalizedData);
       if (result.success) {
         const matchScore = calculateMatchScore(normalizedData, schema);
+        console.log(`Match found: ${category}/${genType} with score ${matchScore}`);
         if (matchScore > highestScore) {
           highestScore = matchScore;
           bestMatch = { category, genType, confidence: matchScore };
@@ -110,6 +127,7 @@ function findBestPromptConfigMatch(jsonData: any): { category: Category; genType
     }
   }
 
+  console.log("Best match:", bestMatch, "with score:", highestScore);
   return highestScore > 0.5 ? bestMatch : null;
 }
 
