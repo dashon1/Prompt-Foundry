@@ -2,7 +2,7 @@
 
 ## Overview
 
-Prompt Foundry is a comprehensive prompt generation platform that creates AI prompts across 67 categories spanning diverse domains: startups, food & hospitality, real estate & investment, finance & business, images, video, YouTube, apps, marketing, design, production, analysis, development, science, HR, and many specialized areas. The application provides a playground for designing prompts, an API for programmatic access, and Zod-validated schemas ensuring type-safe inputs and outputs.
+Prompt Foundry is a comprehensive prompt generation platform that creates AI prompts across 68 categories spanning diverse domains: startups, food & hospitality, real estate & investment, finance & business, images, video, YouTube, apps, marketing, design, production, analysis, development, science, HR, and many specialized areas. The application provides a playground for designing prompts, an API for programmatic access, and Zod-validated schemas ensuring type-safe inputs and outputs.
 
 The platform uses OpenAI's API (via Replit's AI Integrations service) to generate high-quality, detailed prompts based on user specifications. Each generator type follows industry best practices and returns structured JSON outputs that match defined schemas.
 
@@ -30,7 +30,7 @@ Preferred communication style: Simple, everyday language.
 
 **Key Pages:**
 - Home: Landing page with features and CTAs
-- Generators: Catalog of all 67 generator categories
+- Generators: Catalog of all 68 generator categories
 - Playground: Interactive form-based generator interface
 - API: Documentation for RESTful endpoints
 
@@ -87,7 +87,7 @@ Preferred communication style: Simple, everyday language.
 ### Schema & Validation System
 
 **Zod Schemas:** Core validation layer in `shared/schema.ts`
-- 67 categories defined as const array across 8 major domains
+- 68 categories defined as const array across 8 major domains
 - 3 generator types: prompt_generator, agent_helper, general_generator
 - Each category/type combination has dedicated input schema (201 total schemas)
 - Schemas include defaults, nested objects, and array validations
@@ -104,7 +104,7 @@ Preferred communication style: Simple, everyday language.
 - Type-safe inputs with TypeScript inference
 - Default values for optional fields (IMAGE_DEFAULTS, VIDEO_DEFAULTS)
 - Preset constants (PHOTOREALISM_ADDON for realistic image generation)
-- Category metadata with icons, names, descriptions for all 67 generators
+- Category metadata with icons, names, descriptions for all 68 generators
 
 ### External Dependencies
 

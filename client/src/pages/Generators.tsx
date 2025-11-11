@@ -22,7 +22,7 @@ export default function Generators() {
                 Generator Catalog
               </h1>
               <p className="text-lg text-muted-foreground" data-testid="text-page-description">
-                Browse all 17 categories and find the perfect generator for your needs
+                Browse all 68 categories and find the perfect generator for your needs
               </p>
             </div>
 

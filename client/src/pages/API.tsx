@@ -16,7 +16,7 @@ export default function API() {
               </h1>
             </div>
             <p className="text-lg text-muted-foreground" data-testid="text-page-description">
-              RESTful API for generating prompts across all 17 categories
+              RESTful API for generating prompts across all 68 categories
             </p>
           </div>
 
@@ -40,7 +40,7 @@ export default function API() {
                   <div>
                     <p className="text-sm font-medium">Generator Category</p>
                     <p className="text-sm text-muted-foreground">
-                      One of: image, video, youtube_titles, apps, marketing_content, visual_design, av_production, business_analysis, dev_tasks, personal_helper, strategy_innovation, data_decision, hyper_personalization, automation_augmentation, content_creation, science_rnd, hr_operations
+                      One of 68 available categories across domains: creative (image, video, youtube_titles, apps, marketing_content, visual_design, av_production), business (business_analysis, strategy_innovation, data_decision), development (dev_tasks, automation_augmentation), startup (lean_canvas, startup_pitch, startup_roadmap, etc.), food & hospitality (baking_formula, food_business_concept), real estate (rei_market_research, rei_investor), finance (business_credit, day_trading), specialized (mcp_product_builder, seo_frameworks, meditation_script), and more. See the Generators page for the complete catalog.
                     </p>
                   </div>
                 </div>
