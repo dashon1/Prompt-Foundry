@@ -28,10 +28,10 @@ export function JSONImportExport({
   const { toast } = useToast();
 
   const handleFileUpload = async (file: File) => {
-    if (!file.name.endsWith('.json')) {
+    if (!file.name.endsWith('.json') && !file.name.endsWith('.txt')) {
       toast({
         title: "Invalid file type",
-        description: "Please upload a JSON file",
+        description: "Please upload a JSON or text file",
         variant: "destructive",
       });
       return;
