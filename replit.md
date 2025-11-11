@@ -164,6 +164,7 @@ Unified JSON upload/download functionality in the Playground that supports two t
 - Suggests category (typically automation_augmentation)
 
 **Implementation:**
+- Accepts both `.json` and `.txt` files (content must be valid JSON)
 - Client-side file processing with 200KB limit for security
 - `client/src/lib/jsonAnalyzer.ts`: Type detection and schema validation
 - `client/src/components/JSONImportExport.tsx`: Drag-and-drop UI component

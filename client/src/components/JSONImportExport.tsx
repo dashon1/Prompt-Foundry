@@ -154,7 +154,7 @@ export function JSONImportExport({
     <Card>
       <CardHeader>
         <CardTitle>Import & Export</CardTitle>
-        <CardDescription>Upload JSON files or export current configuration</CardDescription>
+        <CardDescription>Upload JSON or text files, or export current configuration</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div
@@ -175,7 +175,7 @@ export function JSONImportExport({
             <div className="flex flex-col items-center space-y-3">
               <Upload className="h-8 w-8 text-muted-foreground" />
               <div className="space-y-1">
-                <p className="text-sm font-medium">Drop JSON file here</p>
+                <p className="text-sm font-medium">Drop JSON or text file here</p>
                 <p className="text-xs text-muted-foreground">
                   Supports prompt configs & n8n workflows
                 </p>
@@ -183,7 +183,7 @@ export function JSONImportExport({
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".json"
+                accept=".json,.txt"
                 onChange={handleFileInputChange}
                 className="hidden"
                 data-testid="input-file-upload"
