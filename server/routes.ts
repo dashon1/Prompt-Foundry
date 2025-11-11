@@ -8,8 +8,8 @@ import {
   createApiKey, getUserApiKeys, deleteApiKey, toggleApiKeyStatus,
   createN8nWorkflow, getUserN8nWorkflows, deleteN8nWorkflow, toggleN8nWorkflowFavorite
 } from "./storage";
-import { generatePrompt } from "./openai";
-import { GENERATOR_SCHEMAS, CATEGORIES, GENERATOR_TYPES } from "@shared/schema";
+import { generatePrompt, callOpenAIChat } from "./openai";
+import { GENERATOR_SCHEMAS, CATEGORIES, GENERATOR_TYPES, CATEGORY_METADATA } from "@shared/schema";
 import type { Category, GeneratorType } from "@shared/schema";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 
@@ -381,6 +381,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         error: "Service error",
         message: "Failed to delete API key"
+      });
+    }
+  });
+
+  // AI-assisted field completion
+  app.post("/api/ai-assist", isAuthenticated, async (req: any, res) => {
+    try {
+      const { category, genType, currentInputs, emptyFields, workflowContext } = req.body;
+      
+      if (!category || !genType || !emptyFields || !Array.isArray(emptyFields)) {
+        return res.status(400).json({
+          error: "Invalid request",
+          message: "Must provide category, genType, and emptyFields array"
+        });
+      }
+
+      const categoryMeta = CATEGORY_METADATA.find(c => c.id === category);
+      if (!categoryMeta) {
+        return res.status(404).json({
+          error: "Category not found",
+          message: `Category ${category} not found`
+        });
+      }
+
+      const systemPrompt = `You are an AI assistant helping users fill out prompt generator forms. 
+The user is working on a ${categoryMeta.name} generator (${genType}).
+Description: ${categoryMeta.description}
+
+Your task is to suggest intelligent values for empty required fields based on:
+1. The category and purpose of the generator
+2. Any existing field values the user has already filled in
+3. Any uploaded workflow context that provides additional information
+
+Respond with a JSON object where keys are field names and values are your suggested content.
+Be concise but thoughtful. Suggestions should be practical and immediately useful.`;
+
+      const userPrompt = `Category: ${category} (${genType})
+Current filled fields: ${JSON.stringify(currentInputs, null, 2)}
+Empty fields that need suggestions: ${emptyFields.join(", ")}
+${workflowContext ? `\nWorkflow context: ${JSON.stringify(workflowContext, null, 2)}` : ""}
+
+Please suggest values for the empty fields.`;
+
+      const suggestions = await callOpenAIChat(
+        [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        { 
+          temperature: 0.7, 
+          max_completion_tokens: 1000,
+          response_format: { type: "json_object" }
+        }
+      );
+
+      let parsedSuggestions = {};
+      try {
+        parsedSuggestions = JSON.parse(suggestions);
+      } catch (parseError) {
+        parsedSuggestions = emptyFields.reduce((acc, field) => {
+          acc[field] = suggestions;
+          return acc;
+        }, {} as Record<string, string>);
+      }
+
+      res.json({ suggestions: parsedSuggestions });
+    } catch (error: any) {
+      console.error("Error in AI assist:", error);
+      res.status(500).json({
+        error: "Service error",
+        message: "Failed to generate field suggestions"
       });
     }
   });

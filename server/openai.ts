@@ -160,6 +160,47 @@ function getOutputStructure(category: Category, genType: GeneratorType): string 
   return outputStructures[category]?.[genType] || '{"result": "string"}';
 }
 
+// Generic OpenAI chat completion helper
+export async function callOpenAIChat(
+  messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[],
+  options?: Partial<OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming>
+): Promise<string> {
+  const limit = pLimit(1);
+  
+  return limit(() =>
+    pRetry(
+      async () => {
+        try {
+          const response = await openai.chat.completions.create({
+            model: "gpt-5",
+            messages,
+            max_completion_tokens: 2000,
+            ...options
+          });
+
+          const content = response.choices[0]?.message?.content;
+          if (!content) {
+            throw new Error("No content in response");
+          }
+
+          return content;
+        } catch (error: any) {
+          if (isRateLimitError(error)) {
+            throw error;
+          }
+          throw new AbortError(error);
+        }
+      },
+      {
+        retries: 7,
+        minTimeout: 2000,
+        maxTimeout: 128000,
+        factor: 2,
+      }
+    )
+  );
+}
+
 // Generate prompt using OpenAI
 export async function generatePrompt(
   category: Category,
