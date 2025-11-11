@@ -52,7 +52,9 @@ export function JSONImportExport({
       const text = await file.text();
       const jsonData = JSON.parse(text);
 
+      console.log("Uploaded JSON:", jsonData);
       const detection = detectJSONType(jsonData);
+      console.log("Detection result:", detection);
 
       if (detection.type === "n8n_workflow") {
         const analysis = analyzeN8nWorkflow(detection.workflow);

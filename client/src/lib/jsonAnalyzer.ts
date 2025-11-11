@@ -81,7 +81,8 @@ function normalizeFieldNames(obj: any): any {
   
   const normalized: any = {};
   for (const key in obj) {
-    const normalizedKey = key.toLowerCase().replace(/\s+/g, '');
+    // Convert "Style Tags" to "style_tags", "CAMERA" to "camera", "Focal Length mm" to "focal_length_mm"
+    const normalizedKey = key.toLowerCase().replace(/\s+/g, '_');
     normalized[normalizedKey] = normalizeFieldNames(obj[key]);
   }
   return normalized;
