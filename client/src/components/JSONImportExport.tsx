@@ -128,7 +128,11 @@ export function JSONImportExport({
       type: 'application/json',
     });
 
-    const date = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const date = `${year}${month}${day}`;
     const filename = `prompt-foundry-${currentCategory}-${date}.json`;
 
     const url = URL.createObjectURL(blob);
