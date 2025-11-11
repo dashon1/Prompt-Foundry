@@ -133,13 +133,27 @@ function findBestPromptConfigMatch(jsonData: any): { category: Category; genType
 
 function calculateMatchScore(jsonData: any, schema: any): number {
   const dataKeys = Object.keys(jsonData);
-  const schemaShape = schema._def?.schema?.shape || {};
+  
+  // Try to get schema shape from Zod schema
+  let schemaShape: any = {};
+  if (schema.shape) {
+    schemaShape = schema.shape;
+  } else if (schema._def?.shape) {
+    schemaShape = typeof schema._def.shape === 'function' ? schema._def.shape() : schema._def.shape;
+  }
+  
   const schemaKeys = Object.keys(schemaShape);
   
-  if (schemaKeys.length === 0) return 0;
+  if (schemaKeys.length === 0) {
+    console.log("Warning: Could not extract schema keys, returning score 0.7 for successful parse");
+    // If we successfully parsed but can't get keys, give a reasonable default score
+    return 0.7;
+  }
 
   const matchingKeys = dataKeys.filter(key => schemaKeys.includes(key));
-  return matchingKeys.length / Math.max(schemaKeys.length, dataKeys.length);
+  const score = matchingKeys.length / Math.max(schemaKeys.length, dataKeys.length);
+  console.log(`Score calculation: ${matchingKeys.length} matching keys / ${Math.max(schemaKeys.length, dataKeys.length)} total = ${score}`);
+  return score;
 }
 
 export function analyzeN8nWorkflow(workflow: N8nWorkflow) {
