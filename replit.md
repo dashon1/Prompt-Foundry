@@ -2,7 +2,7 @@
 
 ## Overview
 
-Prompt Foundry is a comprehensive prompt generation platform that creates AI prompts across 17+ categories including images, video, YouTube, apps, marketing, design, production, analysis, development, and more. The application provides a playground for designing prompts, an API for programmatic access, and Zod-validated schemas ensuring type-safe inputs and outputs.
+Prompt Foundry is a comprehensive prompt generation platform that creates AI prompts across 67 categories spanning diverse domains: startups, food & hospitality, real estate & investment, finance & business, images, video, YouTube, apps, marketing, design, production, analysis, development, science, HR, and many specialized areas. The application provides a playground for designing prompts, an API for programmatic access, and Zod-validated schemas ensuring type-safe inputs and outputs.
 
 The platform uses OpenAI's API (via Replit's AI Integrations service) to generate high-quality, detailed prompts based on user specifications. Each generator type follows industry best practices and returns structured JSON outputs that match defined schemas.
 
@@ -30,7 +30,7 @@ Preferred communication style: Simple, everyday language.
 
 **Key Pages:**
 - Home: Landing page with features and CTAs
-- Generators: Catalog of all 17+ generator categories
+- Generators: Catalog of all 67 generator categories
 - Playground: Interactive form-based generator interface
 - API: Documentation for RESTful endpoints
 
@@ -87,22 +87,24 @@ Preferred communication style: Simple, everyday language.
 ### Schema & Validation System
 
 **Zod Schemas:** Core validation layer in `shared/schema.ts`
-- 17 categories defined as const array
+- 67 categories defined as const array across 8 major domains
 - 3 generator types: prompt_generator, agent_helper, general_generator
-- Each category/type combination has dedicated input schema
+- Each category/type combination has dedicated input schema (201 total schemas)
 - Schemas include defaults, nested objects, and array validations
 
-**Example Categories:**
-- Image: Camera settings, lighting, mood, composition
-- Video: Duration, lens, motion, audio specifications
-- Marketing: Audience, goals, engagement metrics
-- Technical: Precise technical specifications
+**Category Domains:**
+1. **Core Creative** (17 categories): Image, Video, YouTube, Apps, Marketing, Visual Design, AV Production, Business Analysis, Development, Personal Helper, Strategy, Data & Decision, Hyper Personalization, Automation, Content Creation, Science R&D, HR Operations
+2. **Startup & Entrepreneurship** (24 categories): Idea Refinement, Lean Canvas, Name Generator, Competitor Mapping, Customer Acquisition, MVP Prioritization, Brand Voice, Launch Checklist, Pitch Creation, Content Calendar, Offer Stack, Product Roadmap, Customer Avatar, Brand Story, Site Wireframe, Productivity System, Email Sequence, Pitch Deck, Partnership Pipeline, Objection Handling, Stress Management, Skills Development, Feedback Loop, Networking System, Customer Journey
+3. **Food & Hospitality** (5 categories): Baking Formula, Food Business Concept, Event Food Planning, Food Social Content, General Culinary
+4. **Real Estate & Investment** (5 categories): Market Research, Acquisition System, Inspection Notes, Investor Tools, General Real Estate
+5. **Finance & Business** (5 categories): Business Credit, Credit Management, Day Trading, Trust & Estate Planning, Business Entity Guide
+6. **Specialized Tools** (11 categories): MCP Product Builder, Ethical Data Extraction, SEO Frameworks, eLearning Builder, Meditation Scripts, Viral Content, Long COVID Resources, Music Creation, Service Business Sites, Website Building, Photorealistic Images
 
 **Schema Features:**
 - Type-safe inputs with TypeScript inference
 - Default values for optional fields (IMAGE_DEFAULTS, VIDEO_DEFAULTS)
 - Preset constants (PHOTOREALISM_ADDON for realistic image generation)
-- Category metadata with icons, names, descriptions
+- Category metadata with icons, names, descriptions for all 67 generators
 
 ### External Dependencies
 
