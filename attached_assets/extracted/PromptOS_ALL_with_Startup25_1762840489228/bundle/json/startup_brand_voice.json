@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "startup_brand_voice",
+    "type": "prompt_generator",
+    "inputs": {
+      "brand_mission": "{{brand_mission}}",
+      "audience": "{{audience}}"
+    },
+    "template": "Brand voice & identity starter. Mission {{brand_mission}}; audience {{audience}}. Provide tone, vocab, story arc, tagline ideas, color/mood concepts."
+  },
+  "agent_helper": {
+    "category": "startup_brand_voice",
+    "type": "agent_helper",
+    "checks": [
+      "Audience aligned",
+      "Tone adjectives",
+      "Narrative clarity",
+      "No guarantees"
+    ]
+  },
+  "general": {
+    "category": "startup_brand_voice",
+    "type": "general",
+    "inputs": {
+      "brand_mission": "{{brand_mission}}"
+    }
+  }
+}

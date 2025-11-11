@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "meditation_script",
+    "type": "prompt_generator",
+    "role": "meditation_script generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate meditation_script output for: {input}"
+  },
+  "agent_helper": {
+    "category": "meditation_script",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "meditation_script",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

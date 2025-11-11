@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_roadmap",
+    "type": "prompt_generator",
+    "inputs": {
+      "phase_count": "{{phase_count}}"
+    },
+    "template": "Founder roadmap with {{phase_count}} phases: goals, milestones, progress indicators, learning checkpoints."
+  },
+  "agent_helper": {
+    "category": "startup_roadmap",
+    "type": "agent_helper",
+    "checks": [
+      "Clear phases",
+      "Learning milestones",
+      "No projections",
+      "Capacity aware"
+    ]
+  },
+  "general": {
+    "category": "startup_roadmap",
+    "type": "general",
+    "inputs": {
+      "phase_count": "{{phase_count}}"
+    }
+  }
+}

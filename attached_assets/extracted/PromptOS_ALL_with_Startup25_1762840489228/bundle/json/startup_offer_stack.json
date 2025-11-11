@@ -1,0 +1,29 @@
+{
+  "prompt_generator": {
+    "category": "startup_offer_stack",
+    "type": "prompt_generator",
+    "role": "Offer architect.",
+    "inputs": {
+      "industry": "{{industry}}",
+      "audience": "{{audience}}"
+    },
+    "template": "Offer stack for {{industry}} / {{audience}}: free, tripwire, core, premium, retention; value story for each."
+  },
+  "agent_helper": {
+    "category": "startup_offer_stack",
+    "type": "agent_helper",
+    "checks": [
+      "Tiered value",
+      "Journey fit",
+      "No income promises",
+      "Simple deliverables"
+    ]
+  },
+  "general": {
+    "category": "startup_offer_stack",
+    "type": "general",
+    "inputs": {
+      "industry": "{{industry}}"
+    }
+  }
+}

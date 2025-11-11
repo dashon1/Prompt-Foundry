@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "photorealistic_images",
+    "type": "prompt_generator",
+    "role": "photorealistic_images generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate photorealistic_images output for: {input}"
+  },
+  "agent_helper": {
+    "category": "photorealistic_images",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "photorealistic_images",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

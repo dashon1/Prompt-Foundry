@@ -1,0 +1,29 @@
+{
+  "prompt_generator": {
+    "category": "food_business_concept",
+    "type": "prompt_generator",
+    "role": "Menu + brand conceptor.",
+    "inputs": {
+      "business_type": "{{business_type}}",
+      "theme": "{{theme}}"
+    },
+    "template": "Concept for {{business_type}} ({{theme}}): positioning, customer promise, 8-item hero menu, seasonal LTOs, brand voice, visuals."
+  },
+  "agent_helper": {
+    "category": "food_business_concept",
+    "type": "agent_helper",
+    "checks": [
+      "Positioning clear",
+      "Menu coherent",
+      "Ops-feasible",
+      "No regulatory/financial claims"
+    ]
+  },
+  "general": {
+    "category": "food_business_concept",
+    "type": "general",
+    "inputs": {
+      "business_type": "{{business_type}}"
+    }
+  }
+}

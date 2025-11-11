@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "business_entity_overview",
+    "type": "prompt_generator",
+    "role": "business_entity_overview generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate business_entity_overview output for: {input}"
+  },
+  "agent_helper": {
+    "category": "business_entity_overview",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "business_entity_overview",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

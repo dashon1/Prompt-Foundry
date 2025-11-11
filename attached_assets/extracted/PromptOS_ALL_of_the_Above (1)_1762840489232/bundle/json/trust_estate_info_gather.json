@@ -1,0 +1,29 @@
+{
+  "prompt_generator": {
+    "category": "trust_estate_info_gather",
+    "type": "prompt_generator",
+    "role": "Estate info organizer.",
+    "inputs": {
+      "family_structure": "{{family_structure}}",
+      "assets_general": "{{assets_general}}"
+    },
+    "template": "Prep worksheet: goals, beneficiaries, executor/trustee notes, document inventory, attorney questions. No legal advice."
+  },
+  "agent_helper": {
+    "category": "trust_estate_info_gather",
+    "type": "agent_helper",
+    "checks": [
+      "General only",
+      "No drafting",
+      "Attorney-questions list",
+      "Neutral tone"
+    ]
+  },
+  "general": {
+    "category": "trust_estate_info_gather",
+    "type": "general",
+    "inputs": {
+      "family_structure": "{{family_structure}}"
+    }
+  }
+}

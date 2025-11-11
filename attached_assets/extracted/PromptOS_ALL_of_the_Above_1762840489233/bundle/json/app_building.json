@@ -1,0 +1,30 @@
+{
+  "prompt_generator": {
+    "category": "app_building",
+    "type": "prompt_generator",
+    "role": "Senior software architect.",
+    "inputs": {
+      "stack": "{{stack}}",
+      "features": "{{features}}",
+      "constraints": "{{constraints}}"
+    },
+    "template": "Create PRD, architecture, schema, API routes, and milestones for a {{stack}} app with features {{features}}. Respect constraints {{constraints}}."
+  },
+  "agent_helper": {
+    "category": "app_building",
+    "type": "agent_helper",
+    "checks": [
+      "MVP scope clear",
+      "Risks listed",
+      "API + DB included",
+      "Non-goals stated"
+    ]
+  },
+  "general": {
+    "category": "app_building",
+    "type": "general",
+    "inputs": {
+      "stack": "{{stack}}"
+    }
+  }
+}

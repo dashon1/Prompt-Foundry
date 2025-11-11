@@ -1,0 +1,29 @@
+{
+  "prompt_generator": {
+    "category": "ethical_data_extraction",
+    "type": "prompt_generator",
+    "role": "Compliant research planner.",
+    "inputs": {
+      "data_type": "{{data_type}}",
+      "purpose": "{{purpose}}"
+    },
+    "template": "Plan ethical public-source research for {{data_type}} (purpose: {{purpose}}). Include fields, sources, cadence, storage model."
+  },
+  "agent_helper": {
+    "category": "ethical_data_extraction",
+    "type": "agent_helper",
+    "checks": [
+      "Only public/allowed",
+      "No bypass/automation",
+      "Attribution plan",
+      "Research framing"
+    ]
+  },
+  "general": {
+    "category": "ethical_data_extraction",
+    "type": "general",
+    "inputs": {
+      "data_type": "{{data_type}}"
+    }
+  }
+}

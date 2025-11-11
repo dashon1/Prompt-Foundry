@@ -1,0 +1,30 @@
+{
+  "prompt_generator": {
+    "category": "startup_idea_refinement",
+    "type": "prompt_generator",
+    "role": "You refine business ideas.",
+    "inputs": {
+      "raw_idea": "{{raw_idea}}",
+      "target_customer": "{{target_customer}}",
+      "differentiator": "{{differentiator}}"
+    },
+    "template": "Refine idea: {{raw_idea}} for {{target_customer}}. Differentiator: {{differentiator}}. Output: elevator pitch, pain/solution, UVP, assumptions, validation questions."
+  },
+  "agent_helper": {
+    "category": "startup_idea_refinement",
+    "type": "agent_helper",
+    "checks": [
+      "Problem/solution clarity",
+      "UVP present",
+      "Validation questions",
+      "No revenue promises"
+    ]
+  },
+  "general": {
+    "category": "startup_idea_refinement",
+    "type": "general",
+    "inputs": {
+      "raw_idea": "{{raw_idea}}"
+    }
+  }
+}

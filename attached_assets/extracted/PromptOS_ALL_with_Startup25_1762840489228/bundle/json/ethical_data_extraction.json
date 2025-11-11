@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "ethical_data_extraction",
+    "type": "prompt_generator",
+    "role": "ethical_data_extraction generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate ethical_data_extraction output for: {input}"
+  },
+  "agent_helper": {
+    "category": "ethical_data_extraction",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "ethical_data_extraction",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

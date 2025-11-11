@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "youtube_titles",
+    "type": "prompt_generator",
+    "role": "youtube_titles generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate youtube_titles output for: {input}"
+  },
+  "agent_helper": {
+    "category": "youtube_titles",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "youtube_titles",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

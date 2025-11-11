@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_email_sequence",
+    "type": "prompt_generator",
+    "inputs": {
+      "product": "{{product}}"
+    },
+    "template": "6-email launch sequence for {{product}}: narrative build, value previews, story moments, invitation to explore."
+  },
+  "agent_helper": {
+    "category": "startup_email_sequence",
+    "type": "agent_helper",
+    "checks": [
+      "Value-first",
+      "Story arc",
+      "Clear CTA",
+      "No misleading promises"
+    ]
+  },
+  "general": {
+    "category": "startup_email_sequence",
+    "type": "general",
+    "inputs": {
+      "product": "{{product}}"
+    }
+  }
+}

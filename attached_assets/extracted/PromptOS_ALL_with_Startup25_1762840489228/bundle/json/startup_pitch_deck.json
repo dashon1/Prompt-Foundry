@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_pitch_deck",
+    "type": "prompt_generator",
+    "inputs": {
+      "industry": "{{industry}}"
+    },
+    "template": "Non-financial pitch deck outline for {{industry}}: mission, problem narrative, vision, product, differentiation, traction indicators, long-term value."
+  },
+  "agent_helper": {
+    "category": "startup_pitch_deck",
+    "type": "agent_helper",
+    "checks": [
+      "Narrative flow",
+      "Vision clarity",
+      "No solicitations",
+      "Evidence style ok"
+    ]
+  },
+  "general": {
+    "category": "startup_pitch_deck",
+    "type": "general",
+    "inputs": {
+      "industry": "{{industry}}"
+    }
+  }
+}

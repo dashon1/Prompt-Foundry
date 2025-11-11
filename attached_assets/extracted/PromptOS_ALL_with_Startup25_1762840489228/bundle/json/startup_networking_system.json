@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_networking_system",
+    "type": "prompt_generator",
+    "inputs": {
+      "industry": "{{industry}}"
+    },
+    "template": "Authentic networking plan for {{industry}} founders: high-value sources, conversation prompts, nurture cadence."
+  },
+  "agent_helper": {
+    "category": "startup_networking_system",
+    "type": "agent_helper",
+    "checks": [
+      "Value-driven",
+      "No spam",
+      "Relationship building",
+      "Clear cadence"
+    ]
+  },
+  "general": {
+    "category": "startup_networking_system",
+    "type": "general",
+    "inputs": {
+      "industry": "{{industry}}"
+    }
+  }
+}

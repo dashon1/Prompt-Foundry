@@ -1,0 +1,30 @@
+{
+  "prompt_generator": {
+    "category": "youtube_titles",
+    "type": "prompt_generator",
+    "role": "YouTube strategist.",
+    "inputs": {
+      "topic": "{{topic}}",
+      "angle": "{{angle}}",
+      "audience": "{{audience}}"
+    },
+    "template": "Produce 15 clickable titles for {{topic}} with angle {{angle}} for {{audience}}. Avg <=60 chars; curiosity + benefit; no clickbait promises."
+  },
+  "agent_helper": {
+    "category": "youtube_titles",
+    "type": "agent_helper",
+    "checks": [
+      "<=60ch avg",
+      "Benefit clear",
+      "No deceptive claims",
+      "Unique hooks"
+    ]
+  },
+  "general": {
+    "category": "youtube_titles",
+    "type": "general",
+    "inputs": {
+      "topic": "{{topic}}"
+    }
+  }
+}

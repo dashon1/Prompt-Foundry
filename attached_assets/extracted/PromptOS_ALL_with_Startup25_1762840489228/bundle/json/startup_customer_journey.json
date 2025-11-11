@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_customer_journey",
+    "type": "prompt_generator",
+    "inputs": {
+      "offer": "{{offer}}"
+    },
+    "template": "Customer experience map for {{offer}}: awareness \u2192 interest \u2192 onboarding \u2192 delivery \u2192 feedback \u2192 retention."
+  },
+  "agent_helper": {
+    "category": "startup_customer_journey",
+    "type": "agent_helper",
+    "checks": [
+      "Stages mapped",
+      "Friction removal",
+      "Delight moments",
+      "Feedback loop"
+    ]
+  },
+  "general": {
+    "category": "startup_customer_journey",
+    "type": "general",
+    "inputs": {
+      "offer": "{{offer}}"
+    }
+  }
+}

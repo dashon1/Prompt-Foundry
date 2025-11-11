@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_mvp_prioritization",
+    "type": "prompt_generator",
+    "inputs": {
+      "product_type": "{{product_type}}"
+    },
+    "template": "MVP features for {{product_type}}. Group: must/should/could. Include assumptions & rapid tests."
+  },
+  "agent_helper": {
+    "category": "startup_mvp_prioritization",
+    "type": "agent_helper",
+    "checks": [
+      "Small scope",
+      "Validation focus",
+      "No overbuild",
+      "Iterative learning"
+    ]
+  },
+  "general": {
+    "category": "startup_mvp_prioritization",
+    "type": "general",
+    "inputs": {
+      "product_type": "{{product_type}}"
+    }
+  }
+}

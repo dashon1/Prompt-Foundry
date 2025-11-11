@@ -1,0 +1,32 @@
+{
+  "prompt_generator": {
+    "category": "photorealistic_images",
+    "type": "prompt_generator",
+    "role": "Photoreal prompt engineer.",
+    "inputs": {
+      "subject": "{{subject}}",
+      "lens": "{{lens}}",
+      "sensor": "{{sensor}}",
+      "lighting": "{{lighting}}",
+      "post": "{{post}}"
+    },
+    "template": "{{subject}}, lens {{lens}}, sensor {{sensor}}, lighting {{lighting}}, post {{post}}. Add: real optics, filmic noise, accurate texture, color constancy."
+  },
+  "agent_helper": {
+    "category": "photorealistic_images",
+    "type": "agent_helper",
+    "checks": [
+      "Camera realism",
+      "Light realism",
+      "Anatomy coherence",
+      "Single subject framing"
+    ]
+  },
+  "general": {
+    "category": "photorealistic_images",
+    "type": "general",
+    "inputs": {
+      "subject": "{{subject}}"
+    }
+  }
+}

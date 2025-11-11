@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "startup_pitch",
+    "type": "prompt_generator",
+    "inputs": {
+      "business_name": "{{business_name}}",
+      "audience": "{{audience}}"
+    },
+    "template": "Three elevator pitches for {{business_name}} to {{audience}}. Structure: problem, insight, solution, value, call-to-learn-more."
+  },
+  "agent_helper": {
+    "category": "startup_pitch",
+    "type": "agent_helper",
+    "checks": [
+      "Problem-solution",
+      "Audience match",
+      "No funding promises",
+      "Memorable"
+    ]
+  },
+  "general": {
+    "category": "startup_pitch",
+    "type": "general",
+    "inputs": {
+      "business_name": "{{business_name}}"
+    }
+  }
+}

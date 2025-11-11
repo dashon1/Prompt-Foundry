@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "food_social_content",
+    "type": "prompt_generator",
+    "role": "food_social_content generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate food_social_content output for: {input}"
+  },
+  "agent_helper": {
+    "category": "food_social_content",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "food_social_content",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

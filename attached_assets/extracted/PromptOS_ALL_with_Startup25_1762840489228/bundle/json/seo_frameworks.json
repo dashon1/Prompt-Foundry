@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "seo_frameworks",
+    "type": "prompt_generator",
+    "role": "seo_frameworks generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate seo_frameworks output for: {input}"
+  },
+  "agent_helper": {
+    "category": "seo_frameworks",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "seo_frameworks",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

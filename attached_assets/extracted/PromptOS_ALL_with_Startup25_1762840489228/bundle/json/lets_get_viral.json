@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "lets_get_viral",
+    "type": "prompt_generator",
+    "role": "lets_get_viral generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate lets_get_viral output for: {input}"
+  },
+  "agent_helper": {
+    "category": "lets_get_viral",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "lets_get_viral",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

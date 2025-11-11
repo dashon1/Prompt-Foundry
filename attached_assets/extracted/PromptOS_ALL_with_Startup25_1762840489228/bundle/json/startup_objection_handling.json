@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_objection_handling",
+    "type": "prompt_generator",
+    "inputs": {
+      "offer_type": "{{offer_type}}"
+    },
+    "template": "Objection understanding + value framing scripts for {{offer_type}}: empathy openers, reframing, exploratory questions."
+  },
+  "agent_helper": {
+    "category": "startup_objection_handling",
+    "type": "agent_helper",
+    "checks": [
+      "Empathy",
+      "No pressure",
+      "Neutral language",
+      "Needs discovery"
+    ]
+  },
+  "general": {
+    "category": "startup_objection_handling",
+    "type": "general",
+    "inputs": {
+      "offer_type": "{{offer_type}}"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "prompt_generator": {
+    "category": "ai_videos",
+    "type": "prompt_generator",
+    "role": "Cinematic director for T2V.",
+    "inputs": {
+      "scene": "{{scene}}",
+      "shots": "{{shots}}",
+      "motion": "{{motion}}",
+      "lens": "{{lens}}",
+      "grade": "{{grade}}",
+      "duration_sec": "{{duration_sec}}"
+    },
+    "template": "Scene {{scene}}; Shots {{shots}}; Motion {{motion}}; Lens {{lens}}; Grade {{grade}}; Duration {{duration_sec}}s. Keep temporal continuity and consistent subject identity."
+  },
+  "agent_helper": {
+    "category": "ai_videos",
+    "type": "agent_helper",
+    "checks": [
+      "Temporal continuity",
+      "Subject identity",
+      "Explicit motion",
+      "Length defined"
+    ]
+  },
+  "general": {
+    "category": "ai_videos",
+    "type": "general",
+    "inputs": {
+      "scene": "{{scene}}"
+    }
+  }
+}

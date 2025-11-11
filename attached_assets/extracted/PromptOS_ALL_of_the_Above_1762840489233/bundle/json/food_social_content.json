@@ -1,0 +1,29 @@
+{
+  "prompt_generator": {
+    "category": "food_social_content",
+    "type": "prompt_generator",
+    "inputs": {
+      "platform": "{{platform}}",
+      "tone": "{{tone}}",
+      "theme": "{{theme}}"
+    },
+    "template": "Create 14-day plan for {{platform}} (tone {{tone}}, theme {{theme}}). Each: hook, micro-story, CTA, visual idea."
+  },
+  "agent_helper": {
+    "category": "food_social_content",
+    "type": "agent_helper",
+    "checks": [
+      "Hook present",
+      "CTA present",
+      "Platform-fit",
+      "No medical claims"
+    ]
+  },
+  "general": {
+    "category": "food_social_content",
+    "type": "general",
+    "inputs": {
+      "platform": "{{platform}}"
+    }
+  }
+}

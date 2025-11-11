@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_partnership_pipeline",
+    "type": "prompt_generator",
+    "inputs": {
+      "industry": "{{industry}}"
+    },
+    "template": "Partnership pipeline for {{industry}}: partner types, outreach angles, value swaps, nurture sequence."
+  },
+  "agent_helper": {
+    "category": "startup_partnership_pipeline",
+    "type": "agent_helper",
+    "checks": [
+      "Mutual value",
+      "Ethical outreach",
+      "Relationship-based",
+      "No guarantees"
+    ]
+  },
+  "general": {
+    "category": "startup_partnership_pipeline",
+    "type": "general",
+    "inputs": {
+      "industry": "{{industry}}"
+    }
+  }
+}

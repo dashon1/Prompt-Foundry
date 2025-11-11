@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "startup_customer_plan",
+    "type": "prompt_generator",
+    "inputs": {
+      "customer_type": "{{customer_type}}",
+      "offer_type": "{{offer_type}}"
+    },
+    "template": "First-100-customer plan for {{offer_type}} to {{customer_type}}: messaging angles, outreach channels, content plan, community, validation steps."
+  },
+  "agent_helper": {
+    "category": "startup_customer_plan",
+    "type": "agent_helper",
+    "checks": [
+      "Ethical outreach",
+      "Value-first",
+      "Research emphasis",
+      "No revenue advice"
+    ]
+  },
+  "general": {
+    "category": "startup_customer_plan",
+    "type": "general",
+    "inputs": {
+      "customer_type": "{{customer_type}}"
+    }
+  }
+}

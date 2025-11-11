@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_site_wireframe",
+    "type": "prompt_generator",
+    "inputs": {
+      "product_type": "{{product_type}}"
+    },
+    "template": "Homepage wireframe for {{product_type}}: hero, value stacks, proof, trust anchors, visual tone, footer items."
+  },
+  "agent_helper": {
+    "category": "startup_site_wireframe",
+    "type": "agent_helper",
+    "checks": [
+      "Layout clarity",
+      "CTA clarity",
+      "Evidence elements",
+      "Simple messaging"
+    ]
+  },
+  "general": {
+    "category": "startup_site_wireframe",
+    "type": "general",
+    "inputs": {
+      "product_type": "{{product_type}}"
+    }
+  }
+}

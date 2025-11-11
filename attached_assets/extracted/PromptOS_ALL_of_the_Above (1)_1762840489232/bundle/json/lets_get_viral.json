@@ -1,0 +1,29 @@
+{
+  "prompt_generator": {
+    "category": "lets_get_viral",
+    "type": "prompt_generator",
+    "role": "Viral ideation coach.",
+    "inputs": {
+      "theme": "{{theme}}",
+      "platform": "{{platform}}"
+    },
+    "template": "Generate 10 'Let's get\u2026' ideas for {{platform}} around {{theme}}. Include slogan, concept, action shot."
+  },
+  "agent_helper": {
+    "category": "lets_get_viral",
+    "type": "agent_helper",
+    "checks": [
+      "Energetic",
+      "Platform-fit",
+      "Clear action",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "lets_get_viral",
+    "type": "general",
+    "inputs": {
+      "theme": "{{theme}}"
+    }
+  }
+}

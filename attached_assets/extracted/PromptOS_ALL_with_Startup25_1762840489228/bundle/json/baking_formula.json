@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "baking_formula",
+    "type": "prompt_generator",
+    "role": "baking_formula generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate baking_formula output for: {input}"
+  },
+  "agent_helper": {
+    "category": "baking_formula",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "baking_formula",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

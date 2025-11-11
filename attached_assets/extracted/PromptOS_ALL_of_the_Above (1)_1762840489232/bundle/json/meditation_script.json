@@ -1,0 +1,29 @@
+{
+  "prompt_generator": {
+    "category": "meditation_script",
+    "type": "prompt_generator",
+    "inputs": {
+      "mood": "{{mood}}",
+      "theme": "{{theme}}",
+      "length_min": "{{length_min}}"
+    },
+    "template": "Guided meditation {{length_min}} min, mood {{mood}}, theme {{theme}}. Include breathing, visualization, gentle close."
+  },
+  "agent_helper": {
+    "category": "meditation_script",
+    "type": "agent_helper",
+    "checks": [
+      "Calm tone",
+      "Breath+visualize",
+      "No therapeutic claims",
+      "Gentle return"
+    ]
+  },
+  "general": {
+    "category": "meditation_script",
+    "type": "general",
+    "inputs": {
+      "theme": "{{theme}}"
+    }
+  }
+}

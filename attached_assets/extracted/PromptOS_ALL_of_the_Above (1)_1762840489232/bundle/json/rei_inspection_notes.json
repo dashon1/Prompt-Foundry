@@ -1,0 +1,29 @@
+{
+  "prompt_generator": {
+    "category": "rei_inspection_notes",
+    "type": "prompt_generator",
+    "role": "Walkthrough note framer.",
+    "inputs": {
+      "property_type": "{{property_type}}",
+      "year_built": "{{year_built}}"
+    },
+    "template": "Checklist: exterior, roof, foundation, mechanicals, plumbing, electrical, interior finishes, moisture indicators, photo slots."
+  },
+  "agent_helper": {
+    "category": "rei_inspection_notes",
+    "type": "agent_helper",
+    "checks": [
+      "Systems listed",
+      "Neutral observation",
+      "No costs",
+      "Photo slots"
+    ]
+  },
+  "general": {
+    "category": "rei_inspection_notes",
+    "type": "general",
+    "inputs": {
+      "property_type": "{{property_type}}"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "ai_videos",
+    "type": "prompt_generator",
+    "role": "ai_videos generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate ai_videos output for: {input}"
+  },
+  "agent_helper": {
+    "category": "ai_videos",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "ai_videos",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

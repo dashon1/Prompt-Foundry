@@ -1,0 +1,30 @@
+{
+  "prompt_generator": {
+    "category": "rei_market_research",
+    "type": "prompt_generator",
+    "role": "REI analyst.",
+    "inputs": {
+      "market_area": "{{market_area}}",
+      "property_type": "{{property_type}}",
+      "trend_focus": "{{trend_focus}}"
+    },
+    "template": "Market outline for {{market_area}} / {{property_type}}: demand drivers, supply notes, rent/occupancy context, neighborhood tiers, trend observations ({{trend_focus}})."
+  },
+  "agent_helper": {
+    "category": "rei_market_research",
+    "type": "agent_helper",
+    "checks": [
+      "Neutral tone",
+      "No forecasts",
+      "Data buckets clear",
+      "Research framing"
+    ]
+  },
+  "general": {
+    "category": "rei_market_research",
+    "type": "general",
+    "inputs": {
+      "market_area": "{{market_area}}"
+    }
+  }
+}

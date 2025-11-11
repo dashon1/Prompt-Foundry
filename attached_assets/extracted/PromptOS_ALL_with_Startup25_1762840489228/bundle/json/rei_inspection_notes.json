@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "rei_inspection_notes",
+    "type": "prompt_generator",
+    "role": "rei_inspection_notes generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate rei_inspection_notes output for: {input}"
+  },
+  "agent_helper": {
+    "category": "rei_inspection_notes",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "rei_inspection_notes",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

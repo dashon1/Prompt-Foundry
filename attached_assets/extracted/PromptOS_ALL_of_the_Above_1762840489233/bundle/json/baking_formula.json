@@ -1,0 +1,29 @@
+{
+  "prompt_generator": {
+    "category": "baking_formula",
+    "type": "prompt_generator",
+    "role": "Baking ratios & method coach.",
+    "inputs": {
+      "baked_item": "{{baked_item}}",
+      "flavor_profile": "{{flavor_profile}}"
+    },
+    "template": "Provide baker's % and method for {{baked_item}} ({{flavor_profile}}). Include mix, rest/proof, bake cues, texture goals."
+  },
+  "agent_helper": {
+    "category": "baking_formula",
+    "type": "agent_helper",
+    "checks": [
+      "Ratios present",
+      "Method sequenced",
+      "Texture cues",
+      "No nutrition claims"
+    ]
+  },
+  "general": {
+    "category": "baking_formula",
+    "type": "general",
+    "inputs": {
+      "baked_item": "{{baked_item}}"
+    }
+  }
+}

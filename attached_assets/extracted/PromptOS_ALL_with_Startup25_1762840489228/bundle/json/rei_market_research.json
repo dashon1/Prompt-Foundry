@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "rei_market_research",
+    "type": "prompt_generator",
+    "role": "rei_market_research generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate rei_market_research output for: {input}"
+  },
+  "agent_helper": {
+    "category": "rei_market_research",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "rei_market_research",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

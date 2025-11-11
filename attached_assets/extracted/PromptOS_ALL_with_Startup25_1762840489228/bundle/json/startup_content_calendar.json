@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_content_calendar",
+    "type": "prompt_generator",
+    "inputs": {
+      "platform": "{{platform}}"
+    },
+    "template": "30-day content calendar for {{platform}}: launch countdown, BTS, value education, social proof, story arcs."
+  },
+  "agent_helper": {
+    "category": "startup_content_calendar",
+    "type": "agent_helper",
+    "checks": [
+      "Story+value+CTA mix",
+      "Momentum structure",
+      "No unrealistic claims",
+      "Repurposing ideas"
+    ]
+  },
+  "general": {
+    "category": "startup_content_calendar",
+    "type": "general",
+    "inputs": {
+      "platform": "{{platform}}"
+    }
+  }
+}

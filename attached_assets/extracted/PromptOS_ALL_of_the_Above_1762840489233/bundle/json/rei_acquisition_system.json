@@ -1,0 +1,29 @@
+{
+  "prompt_generator": {
+    "category": "rei_acquisition_system",
+    "type": "prompt_generator",
+    "role": "Acquisition SOP builder.",
+    "inputs": {
+      "lead_source": "{{lead_source}}",
+      "communication_method": "{{communication_method}}"
+    },
+    "template": "Lead \u2192 screen \u2192 contact \u2192 follow-up \u2192 archive; roles, SLAs, CRM fields for {{lead_source}} via {{communication_method}}."
+  },
+  "agent_helper": {
+    "category": "rei_acquisition_system",
+    "type": "agent_helper",
+    "checks": [
+      "Stages present",
+      "No valuations",
+      "Ops-only",
+      "SLA times"
+    ]
+  },
+  "general": {
+    "category": "rei_acquisition_system",
+    "type": "general",
+    "inputs": {
+      "lead_source": "{{lead_source}}"
+    }
+  }
+}

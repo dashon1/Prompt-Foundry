@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_brand_story",
+    "type": "prompt_generator",
+    "inputs": {
+      "founder_origin": "{{founder_origin}}"
+    },
+    "template": "3-Act brand story from {{founder_origin}}: Act I spark; Act II struggle & insight; Act III solution & mission; emotional tagline; tone guide."
+  },
+  "agent_helper": {
+    "category": "startup_brand_story",
+    "type": "agent_helper",
+    "checks": [
+      "Emotional clarity",
+      "Memorable hook",
+      "Human origin",
+      "No superiority claims"
+    ]
+  },
+  "general": {
+    "category": "startup_brand_story",
+    "type": "general",
+    "inputs": {
+      "founder_origin": "{{founder_origin}}"
+    }
+  }
+}

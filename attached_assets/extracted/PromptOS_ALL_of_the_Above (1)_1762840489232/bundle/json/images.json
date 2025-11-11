@@ -1,0 +1,34 @@
+{
+  "prompt_generator": {
+    "category": "images",
+    "type": "prompt_generator",
+    "role": "World-class image prompt engineer.",
+    "inputs": {
+      "subject": "{{subject}}",
+      "style": "{{style}}",
+      "lighting": "{{lighting}}",
+      "camera": "{{camera}}",
+      "mood": "{{mood}}",
+      "details": "{{details}}"
+    },
+    "template": "Subject {{subject}}; Style {{style}}; Lighting {{lighting}}; Camera {{camera}}; Mood {{mood}}; Details {{details}}. Use coherent anatomy, realistic optics, and physically plausible light."
+  },
+  "agent_helper": {
+    "category": "images",
+    "type": "agent_helper",
+    "checks": [
+      "Style coherent",
+      "Camera defined",
+      "Lighting plausible",
+      "Avoid artifact traps"
+    ]
+  },
+  "general": {
+    "category": "images",
+    "type": "general",
+    "inputs": {
+      "subject": "{{subject}}",
+      "style": "{{style}}"
+    }
+  }
+}

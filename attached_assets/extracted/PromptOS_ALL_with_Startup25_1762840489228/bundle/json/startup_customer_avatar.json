@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_customer_avatar",
+    "type": "prompt_generator",
+    "inputs": {
+      "market": "{{market}}"
+    },
+    "template": "Customer avatar for {{market}}: behavior patterns, emotional drivers, decision triggers, environment & lifestyle context."
+  },
+  "agent_helper": {
+    "category": "startup_customer_avatar",
+    "type": "agent_helper",
+    "checks": [
+      "Psychographics",
+      "Drivers clear",
+      "No personal data",
+      "Actionable insights"
+    ]
+  },
+  "general": {
+    "category": "startup_customer_avatar",
+    "type": "general",
+    "inputs": {
+      "market": "{{market}}"
+    }
+  }
+}

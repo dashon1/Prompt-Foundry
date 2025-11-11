@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_skills_plan",
+    "type": "prompt_generator",
+    "inputs": {
+      "role": "{{role}}"
+    },
+    "template": "Skills improvement plan for a founder in {{role}}: skill tiers, learning path, practice plan, tracking ideas."
+  },
+  "agent_helper": {
+    "category": "startup_skills_plan",
+    "type": "agent_helper",
+    "checks": [
+      "Skill clarity",
+      "Practice focus",
+      "No certification promises",
+      "Realistic pacing"
+    ]
+  },
+  "general": {
+    "category": "startup_skills_plan",
+    "type": "general",
+    "inputs": {
+      "role": "{{role}}"
+    }
+  }
+}

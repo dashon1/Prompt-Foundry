@@ -1,0 +1,29 @@
+{
+  "prompt_generator": {
+    "category": "business_entity_overview",
+    "type": "prompt_generator",
+    "role": "Entity concept explainer.",
+    "inputs": {
+      "entity_types": "{{entity_types}}",
+      "focus_points": "{{focus_points}}"
+    },
+    "template": "Explain general concepts for {{entity_types}} with focus on {{focus_points}}. Include pros/limits and use-cases. Suggest consulting licensed pros."
+  },
+  "agent_helper": {
+    "category": "business_entity_overview",
+    "type": "agent_helper",
+    "checks": [
+      "Definitions only",
+      "No recommendations",
+      "Encourage consult",
+      "Neutral tone"
+    ]
+  },
+  "general": {
+    "category": "business_entity_overview",
+    "type": "general",
+    "inputs": {
+      "entity_types": "{{entity_types}}"
+    }
+  }
+}

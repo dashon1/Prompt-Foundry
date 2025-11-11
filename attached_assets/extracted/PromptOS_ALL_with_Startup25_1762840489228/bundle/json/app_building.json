@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "app_building",
+    "type": "prompt_generator",
+    "role": "app_building generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate app_building output for: {input}"
+  },
+  "agent_helper": {
+    "category": "app_building",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "app_building",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

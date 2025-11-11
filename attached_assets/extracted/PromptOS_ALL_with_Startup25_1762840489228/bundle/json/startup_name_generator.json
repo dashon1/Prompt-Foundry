@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "startup_name_generator",
+    "type": "prompt_generator",
+    "inputs": {
+      "industry": "{{industry}}",
+      "style": "{{style}}"
+    },
+    "template": "Generate 20 startup names for {{industry}}; style {{style}}. Include associative meaning & short tagline concept."
+  },
+  "agent_helper": {
+    "category": "startup_name_generator",
+    "type": "agent_helper",
+    "checks": [
+      "Pronounceable",
+      "Distinctive",
+      "Suggest domain check",
+      "No TM claims"
+    ]
+  },
+  "general": {
+    "category": "startup_name_generator",
+    "type": "general",
+    "inputs": {
+      "industry": "{{industry}}"
+    }
+  }
+}

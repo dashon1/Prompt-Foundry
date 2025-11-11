@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "startup_competitor_mapping",
+    "type": "prompt_generator",
+    "inputs": {
+      "industry": "{{industry}}",
+      "audience": "{{audience}}"
+    },
+    "template": "Competitor overview for {{industry}} / {{audience}}: 5 competitor types, differentiators, pain gaps, suggested positioning axes."
+  },
+  "agent_helper": {
+    "category": "startup_competitor_mapping",
+    "type": "agent_helper",
+    "checks": [
+      "Landscape only",
+      "Value gaps",
+      "No confidential info",
+      "Neutral tone"
+    ]
+  },
+  "general": {
+    "category": "startup_competitor_mapping",
+    "type": "general",
+    "inputs": {
+      "industry": "{{industry}}"
+    }
+  }
+}

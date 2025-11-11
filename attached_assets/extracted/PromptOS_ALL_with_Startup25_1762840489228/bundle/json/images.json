@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "images",
+    "type": "prompt_generator",
+    "role": "images generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate images output for: {input}"
+  },
+  "agent_helper": {
+    "category": "images",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "images",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

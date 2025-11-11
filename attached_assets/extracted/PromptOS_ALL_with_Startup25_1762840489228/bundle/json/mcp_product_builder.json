@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "mcp_product_builder",
+    "type": "prompt_generator",
+    "role": "mcp_product_builder generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate mcp_product_builder output for: {input}"
+  },
+  "agent_helper": {
+    "category": "mcp_product_builder",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "mcp_product_builder",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

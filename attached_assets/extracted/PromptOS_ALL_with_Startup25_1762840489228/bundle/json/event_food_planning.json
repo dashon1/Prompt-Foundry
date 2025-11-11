@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "event_food_planning",
+    "type": "prompt_generator",
+    "role": "event_food_planning generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate event_food_planning output for: {input}"
+  },
+  "agent_helper": {
+    "category": "event_food_planning",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "event_food_planning",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

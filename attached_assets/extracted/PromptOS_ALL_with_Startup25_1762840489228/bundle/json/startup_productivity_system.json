@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_productivity_system",
+    "type": "prompt_generator",
+    "inputs": {
+      "work_style": "{{work_style}}"
+    },
+    "template": "Founder productivity system for {{work_style}}: weekly cadence, planning blocks, reflection prompts, anti-overwhelm rules."
+  },
+  "agent_helper": {
+    "category": "startup_productivity_system",
+    "type": "agent_helper",
+    "checks": [
+      "Balanced flow",
+      "Reflection loop",
+      "Manageable tasks",
+      "No medical claims"
+    ]
+  },
+  "general": {
+    "category": "startup_productivity_system",
+    "type": "general",
+    "inputs": {
+      "work_style": "{{work_style}}"
+    }
+  }
+}

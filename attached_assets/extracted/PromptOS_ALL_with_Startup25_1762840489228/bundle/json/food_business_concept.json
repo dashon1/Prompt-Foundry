@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "food_business_concept",
+    "type": "prompt_generator",
+    "role": "food_business_concept generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate food_business_concept output for: {input}"
+  },
+  "agent_helper": {
+    "category": "food_business_concept",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "food_business_concept",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

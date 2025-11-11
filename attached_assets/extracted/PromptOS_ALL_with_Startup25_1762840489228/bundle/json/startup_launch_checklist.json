@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_launch_checklist",
+    "type": "prompt_generator",
+    "inputs": {
+      "business_type": "{{business_type}}"
+    },
+    "template": "Startup launch checklist for {{business_type}}: product readiness, brand assets, content rollout, outreach plan, feedback loop."
+  },
+  "agent_helper": {
+    "category": "startup_launch_checklist",
+    "type": "agent_helper",
+    "checks": [
+      "Execution only",
+      "Content+outreach",
+      "Feedback loops",
+      "No compliance advice"
+    ]
+  },
+  "general": {
+    "category": "startup_launch_checklist",
+    "type": "general",
+    "inputs": {
+      "business_type": "{{business_type}}"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "prompt_generator": {
+    "category": "event_food_planning",
+    "type": "prompt_generator",
+    "inputs": {
+      "event_type": "{{event_type}}",
+      "guest_count": "{{guest_count}}",
+      "theme": "{{theme}}"
+    },
+    "template": "Plan food for {{event_type}} ({{guest_count}} guests, theme {{theme}}): service flow, stations vs plated, timeline, staffing notes."
+  },
+  "agent_helper": {
+    "category": "event_food_planning",
+    "type": "agent_helper",
+    "checks": [
+      "Service flow",
+      "Guest experience",
+      "No safety/storage",
+      "Timeline clarity"
+    ]
+  },
+  "general": {
+    "category": "event_food_planning",
+    "type": "general",
+    "inputs": {
+      "event_type": "{{event_type}}"
+    }
+  }
+}

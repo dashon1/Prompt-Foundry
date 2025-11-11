@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "seo_frameworks",
+    "type": "prompt_generator",
+    "inputs": {
+      "keyword": "{{keyword}}",
+      "industry": "{{industry}}"
+    },
+    "template": "SEO brief for {{keyword}} in {{industry}}: intent, outline H1-H3, FAQs, internal link ideas, schema suggestion."
+  },
+  "agent_helper": {
+    "category": "seo_frameworks",
+    "type": "agent_helper",
+    "checks": [
+      "Intent present",
+      "Outline complete",
+      "No traffic promises",
+      "Schema suggestion"
+    ]
+  },
+  "general": {
+    "category": "seo_frameworks",
+    "type": "general",
+    "inputs": {
+      "keyword": "{{keyword}}"
+    }
+  }
+}

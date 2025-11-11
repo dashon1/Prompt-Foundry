@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "trust_estate_info_gather",
+    "type": "prompt_generator",
+    "role": "trust_estate_info_gather generator",
+    "inputs": {
+      "input": "{{input}}"
+    },
+    "template": "Generate trust_estate_info_gather output for: {input}"
+  },
+  "agent_helper": {
+    "category": "trust_estate_info_gather",
+    "type": "agent_helper",
+    "checks": [
+      "Clarity",
+      "Relevance",
+      "No guarantees",
+      "Safe content"
+    ]
+  },
+  "general": {
+    "category": "trust_estate_info_gather",
+    "type": "general",
+    "inputs": {
+      "input": "{{input}}"
+    }
+  }
+}

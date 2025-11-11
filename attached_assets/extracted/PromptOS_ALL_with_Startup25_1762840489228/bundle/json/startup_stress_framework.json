@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_stress_framework",
+    "type": "prompt_generator",
+    "inputs": {
+      "workload": "{{workload}}"
+    },
+    "template": "Stress-balance framework for founders with {{workload}} workload: pacing rules, reflection routines, supportive habits."
+  },
+  "agent_helper": {
+    "category": "startup_stress_framework",
+    "type": "agent_helper",
+    "checks": [
+      "Non-medical",
+      "Supportive tone",
+      "General habits",
+      "Grounding practices"
+    ]
+  },
+  "general": {
+    "category": "startup_stress_framework",
+    "type": "general",
+    "inputs": {
+      "workload": "{{workload}}"
+    }
+  }
+}

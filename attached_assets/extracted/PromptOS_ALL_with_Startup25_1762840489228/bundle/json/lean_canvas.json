@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "lean_canvas",
+    "type": "prompt_generator",
+    "inputs": {
+      "business_type": "{{business_type}}",
+      "customer_segment": "{{customer_segment}}"
+    },
+    "template": "Lean Canvas for {{business_type}} targeting {{customer_segment}}: problem, solution, UVP, channels, customer segments, cost structure, revenue ideas."
+  },
+  "agent_helper": {
+    "category": "lean_canvas",
+    "type": "agent_helper",
+    "checks": [
+      "Lean format",
+      "Testable assumptions",
+      "No projections",
+      "Clarity"
+    ]
+  },
+  "general": {
+    "category": "lean_canvas",
+    "type": "general",
+    "inputs": {
+      "business_type": "{{business_type}}"
+    }
+  }
+}

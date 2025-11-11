@@ -1,0 +1,27 @@
+{
+  "prompt_generator": {
+    "category": "startup_feedback_loop",
+    "type": "prompt_generator",
+    "inputs": {
+      "product": "{{product}}"
+    },
+    "template": "Customer feedback loop for {{product}}: collection moments, prompts, reflection cycles, iteration checkpoints."
+  },
+  "agent_helper": {
+    "category": "startup_feedback_loop",
+    "type": "agent_helper",
+    "checks": [
+      "Ethical collection",
+      "Structured analysis",
+      "Iteration cycle",
+      "No promises"
+    ]
+  },
+  "general": {
+    "category": "startup_feedback_loop",
+    "type": "general",
+    "inputs": {
+      "product": "{{product}}"
+    }
+  }
+}

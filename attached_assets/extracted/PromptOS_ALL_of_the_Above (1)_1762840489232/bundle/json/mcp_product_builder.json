@@ -1,0 +1,28 @@
+{
+  "prompt_generator": {
+    "category": "mcp_product_builder",
+    "type": "prompt_generator",
+    "role": "MCP designer.",
+    "inputs": {
+      "industry": "{{industry}}"
+    },
+    "template": "Propose 3 Minimum Core Product offers for {{industry}} with promise, deliverables, delivery channel, week-1 launch plan."
+  },
+  "agent_helper": {
+    "category": "mcp_product_builder",
+    "type": "agent_helper",
+    "checks": [
+      "Clear value",
+      "Feasible delivery",
+      "No guarantees",
+      "Simple launch"
+    ]
+  },
+  "general": {
+    "category": "mcp_product_builder",
+    "type": "general",
+    "inputs": {
+      "industry": "{{industry}}"
+    }
+  }
+}
