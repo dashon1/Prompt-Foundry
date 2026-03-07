@@ -65,7 +65,7 @@ export default function Playground() {
       const schema = GENERATOR_SCHEMAS[selectedCategory]?.[selectedType];
       if (!schema) throw new Error("Schema not found");
 
-      const schemaShape = schema.shape;
+      const schemaShape = (schema as any).shape;
       const emptyFields: string[] = [];
 
       for (const [key, fieldSchema] of Object.entries(schemaShape)) {
@@ -100,7 +100,7 @@ export default function Playground() {
     },
     onSuccess: (data) => {
       if (data.suggestions) {
-        setCurrentInputs(prev => ({ ...prev, ...data.suggestions }));
+        setCurrentInputs((prev: any) => ({ ...prev, ...data.suggestions }));
         formResetKeyRef.current += 1;
         toast({
           title: "AI Assist Complete",

@@ -134,7 +134,7 @@ export default function SharedPrompt() {
                 </div>
               </div>
 
-              {sharedLink.inputs && typeof sharedLink.inputs === 'object' && Object.keys(sharedLink.inputs as any).length > 0 && (
+              {sharedLink.inputs != null && typeof sharedLink.inputs === 'object' && Object.keys(sharedLink.inputs as any).length > 0 && (
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Input Configuration</h3>
                   <div className="rounded-md bg-muted p-4">
