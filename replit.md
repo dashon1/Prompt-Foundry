@@ -4,7 +4,7 @@
 
 Prompt Foundry is a comprehensive prompt generation platform that creates AI prompts across 68 categories spanning diverse domains: startups, food & hospitality, real estate & investment, finance & business, images, video, YouTube, apps, marketing, design, production, analysis, development, science, HR, and many specialized areas. The application provides a playground for designing prompts, an API for programmatic access, and Zod-validated schemas ensuring type-safe inputs and outputs.
 
-The platform uses OpenAI's API (via Replit's AI Integrations service) to generate high-quality, detailed prompts based on user specifications. Each generator type follows industry best practices and returns structured JSON outputs that match defined schemas.
+The platform uses OpenAI's API (via Replit's AI Integrations service, model: gpt-4o) to generate high-quality, detailed prompts based on user specifications. Each generator type follows industry best practices and returns structured JSON outputs that match defined schemas. The AI engine uses category-specific system prompts and output structures for all 68 categories, ensuring domain-appropriate responses.
 
 ## User Preferences
 
