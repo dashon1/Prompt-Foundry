@@ -405,24 +405,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const systemPrompt = `You are an AI assistant helping users fill out prompt generator forms. 
+      const systemPrompt = `You are an AI assistant helping users fill out prompt generator forms.
 The user is working on a ${categoryMeta.name} generator (${genType}).
 Description: ${categoryMeta.description}
 
-Your task is to suggest intelligent values for empty required fields based on:
-1. The category and purpose of the generator
-2. Any existing field values the user has already filled in
-3. Any uploaded workflow context that provides additional information
+CRITICAL RULES:
+- You MUST return a JSON object with a value for EVERY field listed
+- Do NOT skip any fields — include all of them in your response
+- Suggestions should be practical, specific, and immediately useful
+- Base suggestions on: the category purpose, any existing values, and the field names
+- For string fields: provide a meaningful sentence or phrase (not empty)
+- For array fields: provide a JSON array of 2-4 relevant strings
+- For number fields: provide a sensible number`;
 
-Respond with a JSON object where keys are field names and values are your suggested content.
-Be concise but thoughtful. Suggestions should be practical and immediately useful.`;
+      const emptyFieldsJson = emptyFields.reduce((acc, field) => {
+        acc[field] = "string or array depending on field type";
+        return acc;
+      }, {} as Record<string, string>);
 
       const userPrompt = `Category: ${category} (${genType})
-Current filled fields: ${JSON.stringify(currentInputs, null, 2)}
-Empty fields that need suggestions: ${emptyFields.join(", ")}
+${Object.keys(currentInputs).length > 0 ? `Already filled fields: ${JSON.stringify(currentInputs, null, 2)}` : "No fields filled yet."}
 ${workflowContext ? `\nWorkflow context: ${JSON.stringify(workflowContext, null, 2)}` : ""}
 
-Please suggest values for the empty fields.`;
+You MUST return a JSON object with ALL ${emptyFields.length} of these keys filled in:
+${emptyFields.map(f => `- ${f}`).join("\n")}
+
+Return ONLY this JSON structure with every key present:
+${JSON.stringify(emptyFieldsJson, null, 2)}`;
 
       const suggestions = await callOpenAIChat(
         [

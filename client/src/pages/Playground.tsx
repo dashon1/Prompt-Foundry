@@ -69,23 +69,30 @@ export default function Playground() {
       const emptyFields: string[] = [];
 
       for (const [key, fieldSchema] of Object.entries(schemaShape)) {
-        const isOptional = (fieldSchema as any)._def?.typeName === "ZodOptional";
-        const hasDefault = (fieldSchema as any)._def?.defaultValue !== undefined;
-        
+        const typeName = (fieldSchema as any)._def?.typeName;
+        const innerTypeName = (fieldSchema as any)._def?.innerType?._def?.typeName;
+
+        // Skip nested ZodObject fields - they contain their own sub-fields
+        if (
+          typeName === "ZodObject" ||
+          (typeName === "ZodDefault" && innerTypeName === "ZodObject")
+        ) continue;
+
         const value = currentInputs[key];
-        const isTrulyEmpty = 
+        const isTrulyEmpty =
           value === undefined ||
           value === null ||
           value === "" ||
           (Array.isArray(value) && value.length === 0);
 
-        if (!isOptional && !hasDefault && isTrulyEmpty) {
+        // Include ALL empty fields (required or optional with empty default)
+        if (isTrulyEmpty) {
           emptyFields.push(key);
         }
       }
 
       if (emptyFields.length === 0) {
-        throw new Error("No empty fields to assist with");
+        throw new Error("All fields are already filled in");
       }
 
       const response = await apiRequest("POST", "/api/ai-assist", {
