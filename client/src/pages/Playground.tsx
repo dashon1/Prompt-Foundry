@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useSearch } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -6,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Sparkles } from "lucide-react";
-import { CATEGORY_METADATA, type Category, type GeneratorType, GENERATOR_TYPES, type Preset, GENERATOR_SCHEMAS } from "@shared/schema";
+import { CATEGORY_METADATA, CATEGORIES, type Category, type GeneratorType, GENERATOR_TYPES, type Preset, GENERATOR_SCHEMAS } from "@shared/schema";
 import { DynamicForm } from "@/components/DynamicForm";
 import { ResultPanel } from "@/components/ResultPanel";
 import { PresetManager } from "@/components/PresetManager";
@@ -16,7 +17,15 @@ import { useToast } from "@/hooks/use-toast";
 import type { N8nWorkflow } from "@/lib/jsonAnalyzer";
 
 export default function Playground() {
-  const [selectedCategory, setSelectedCategory] = useState<Category>("image");
+  const search = useSearch();
+  const params = new URLSearchParams(search);
+  const categoryParam = params.get("category");
+  const initialCategory: Category =
+    categoryParam && (CATEGORIES as readonly string[]).includes(categoryParam)
+      ? (categoryParam as Category)
+      : "image";
+
+  const [selectedCategory, setSelectedCategory] = useState<Category>(initialCategory);
   const [selectedType, setSelectedType] = useState<GeneratorType>("prompt_generator");
   const [result, setResult] = useState<any>(null);
   const [currentInputs, setCurrentInputs] = useState<any>({});
