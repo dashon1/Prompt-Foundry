@@ -18,6 +18,7 @@ interface DynamicFormProps {
   onSubmit: (data: any) => void;
   isSubmitting: boolean;
   initialValues?: any;
+  submitLabel?: string;
 }
 
 // Separate component for array fields to avoid conditional hooks
@@ -77,7 +78,7 @@ function ArrayFieldInput({ field, fieldName, placeholder }: { field: any; fieldN
   );
 }
 
-export function DynamicForm({ category, genType, onSubmit, isSubmitting, initialValues }: DynamicFormProps) {
+export function DynamicForm({ category, genType, onSubmit, isSubmitting, initialValues, submitLabel }: DynamicFormProps) {
   const schema = GENERATOR_SCHEMAS[category][genType];
   
   // Get contextual placeholder text for form fields with helpful examples
@@ -404,12 +405,12 @@ export function DynamicForm({ category, genType, onSubmit, isSubmitting, initial
           {isSubmitting ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Generating...
+              {submitLabel ?? "Generating..."}
             </>
           ) : (
             <>
               <Wand2 className="h-4 w-4 mr-2" />
-              Generate Prompt
+              {submitLabel ?? "Generate Prompt"}
             </>
           )}
         </Button>

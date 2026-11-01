@@ -1040,7 +1040,8 @@ export async function callOpenAIChat(
 export async function generatePrompt(
   category: Category,
   genType: GeneratorType,
-  inputs: any
+  inputs: any,
+  chainContext?: string
 ): Promise<any> {
   const limit = pLimit(1);
   
@@ -1049,7 +1050,10 @@ export async function generatePrompt(
       async () => {
         try {
           const systemPrompt = buildSystemPrompt(category, genType);
-          const userPrompt = buildUserPrompt(category, genType, inputs);
+          const basePrompt = buildUserPrompt(category, genType, inputs);
+          const userPrompt = chainContext
+            ? `${basePrompt}\n\nContext from the previous generator (use as reference material):\n${chainContext}`
+            : basePrompt;
           const outputStructure = getOutputStructure(category, genType);
 
           const response = await openai.chat.completions.create({

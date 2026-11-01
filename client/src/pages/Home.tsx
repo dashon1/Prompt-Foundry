@@ -2,13 +2,13 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Check, Zap, Shield, Code } from "lucide-react";
+import { Sparkles, Shield, Code, Users, GitCompare, BarChart3, Zap } from "lucide-react";
 
 export default function Home() {
   const features = [
     {
-      title: "All Categories",
-      description: "Images, Video, YouTube, Apps, Marketing, Design, AV, Analysis, Dev, Personal, Strategy, Data, Personalization, Automation, Creation, Science, HR.",
+      title: "68 Generator Categories",
+      description: "Images, Video, YouTube, Apps, Marketing, Startup, Finance, Real Estate, Food, and dozens of specialized tools.",
       icon: Sparkles
     },
     {
@@ -18,30 +18,34 @@ export default function Home() {
     },
     {
       title: "API-First",
-      description: "OpenAPI-like specs + SDK scaffolds. Build integrations with ease.",
+      description: "OpenAPI-like specs + SDK scaffolds. Build integrations with your own tools.",
       icon: Code
     }
   ];
 
-  const techLogos = ["OpenAI", "TypeScript", "Zod", "React"];
+  const extras = [
+    { title: "Compare All 3 Types", description: "Run Prompt, Agent, and General generators side by side to pick the best output.", icon: GitCompare, href: "/compare" },
+    { title: "Community Gallery", description: "Browse prompts shared by other users — get inspired and remix them.", icon: Users, href: "/community" },
+    { title: "Usage Dashboard", description: "Track your generations, top categories, and ratings over time.", icon: BarChart3, href: "/dashboard" },
+  ];
 
   return (
     <div className="flex flex-col min-h-screen">
       <section className="relative min-h-[700px] flex items-center justify-center overflow-hidden bg-gradient-to-b from-background via-background to-card/50">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-        
+
         <div className="container mx-auto px-6 py-24 relative z-10">
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <Badge variant="secondary" className="mb-4" data-testid="badge-version">
               <Zap className="h-3 w-3 mr-1" />
-              17+ Generator Categories
+              68 Generator Categories
             </Badge>
-            
+
             <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight" data-testid="text-hero-title">
               Build world-class
               <span className="block text-primary mt-2">prompts & agents</span>
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto" data-testid="text-hero-subtitle">
               OpenAPI-like specs • Zod-validated • AI-powered
             </p>
@@ -66,7 +70,7 @@ export default function Home() {
       <section className="py-12 bg-card/30 border-y border-border">
         <div className="container mx-auto px-6">
           <div className="flex flex-wrap justify-center items-center gap-12">
-            {techLogos.map((logo) => (
+            {["OpenAI", "TypeScript", "Zod", "React"].map((logo) => (
               <div key={logo} className="text-lg font-medium text-muted-foreground" data-testid={`text-tech-${logo.toLowerCase()}`}>
                 {logo}
               </div>
@@ -86,10 +90,9 @@ export default function Home() {
                 Powerful features designed for developers, creators, and AI enthusiasts
               </p>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {features.map((feature, index) => (
-                <Card key={index} className="hover-elevate transition-all duration-200" data-testid={`card-feature-${index}`}>
+                <Card key={index} className="hover-elevate" data-testid={`card-feature-${index}`}>
                   <CardHeader>
                     <feature.icon className="h-12 w-12 text-primary mb-4" />
                     <CardTitle className="text-xl" data-testid={`text-feature-title-${index}`}>{feature.title}</CardTitle>
@@ -106,7 +109,33 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-24 bg-gradient-to-b from-card/30 to-background border-y border-border">
+      <section className="py-16 bg-card/30 border-y border-border">
+        <div className="container mx-auto px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-10 space-y-3">
+              <h2 className="text-2xl md:text-3xl font-semibold">More ways to use Prompt Foundry</h2>
+              <p className="text-muted-foreground">Tools to explore, compare, and track your prompts</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {extras.map((item) => (
+                <Link key={item.href} href={item.href}>
+                  <Card className="hover-elevate cursor-pointer h-full" data-testid={`card-extra-${item.title.toLowerCase().replace(/\s+/g, "-")}`}>
+                    <CardHeader>
+                      <item.icon className="h-8 w-8 text-primary mb-2" />
+                      <CardTitle className="text-lg">{item.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="leading-relaxed">{item.description}</CardDescription>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-gradient-to-b from-card/30 to-background border-t border-border">
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto">
             <Card className="border-2 border-primary/20">

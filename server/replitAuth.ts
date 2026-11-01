@@ -72,10 +72,14 @@ export async function setupAuth(app: Express) {
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
-    const user = {};
-    updateUserSession(user, tokens);
-    await handleUserUpsert(tokens.claims());
-    verified(null, user);
+    try {
+      const user = {};
+      updateUserSession(user, tokens);
+      await handleUserUpsert(tokens.claims());
+      verified(null, user);
+    } catch (error) {
+      verified(error as Error);
+    }
   };
 
   const registeredStrategies = new Set<string>();

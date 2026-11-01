@@ -1,13 +1,16 @@
-import { useState, useRef } from "react";
-import { useSearch } from "wouter";
+import { useState, useRef, useMemo, useEffect } from "react";
+import { useSearch, useLocation, Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Sparkles } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Loader2, Sparkles, BookOpen, GitCompare } from "lucide-react";
 import { CATEGORY_METADATA, CATEGORIES, type Category, type GeneratorType, GENERATOR_TYPES, type Preset, GENERATOR_SCHEMAS } from "@shared/schema";
+import { STARTER_TEMPLATES } from "@/lib/starterTemplates";
+import { readPlaygroundSearch } from "@/lib/playgroundNavigation";
 import { DynamicForm } from "@/components/DynamicForm";
 import { ResultPanel } from "@/components/ResultPanel";
 import { PresetManager } from "@/components/PresetManager";
@@ -18,32 +21,43 @@ import type { N8nWorkflow } from "@/lib/jsonAnalyzer";
 
 export default function Playground() {
   const search = useSearch();
-  const params = new URLSearchParams(search);
-  const categoryParam = params.get("category");
-  const initialCategory: Category =
-    categoryParam && (CATEGORIES as readonly string[]).includes(categoryParam)
-      ? (categoryParam as Category)
-      : "image";
+  const navigation = useMemo(() => readPlaygroundSearch(search), [search]);
 
-  const [selectedCategory, setSelectedCategory] = useState<Category>(initialCategory);
-  const [selectedType, setSelectedType] = useState<GeneratorType>("prompt_generator");
+  const [selectedCategory, setSelectedCategory] = useState<Category>(navigation.category);
+  const [selectedType, setSelectedType] = useState<GeneratorType>(navigation.genType);
   const [result, setResult] = useState<any>(null);
-  const [currentInputs, setCurrentInputs] = useState<any>({});
+  const [historyId, setHistoryId] = useState<number | null>(null);
+  const [currentInputs, setCurrentInputs] = useState<any>(navigation.inputs);
+  const [chainContext, setChainContext] = useState(navigation.chainContext);
   const [lastWorkflow, setLastWorkflow] = useState<any | null>(null);
   const formResetKeyRef = useRef(0);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setSelectedCategory(navigation.category);
+    setSelectedType(navigation.genType);
+    setCurrentInputs(navigation.inputs);
+    setChainContext(navigation.chainContext);
+    setResult(null);
+    setHistoryId(null);
+    formResetKeyRef.current += 1;
+    if (navigation.error) {
+      toast({ title: "Could not restore inputs", description: navigation.error, variant: "destructive" });
+    }
+  }, [navigation, toast]);
 
   const generateMutation = useMutation({
     mutationFn: async (inputs: any) => {
       const response = await apiRequest(
         "POST",
         `/api/generator/${selectedCategory}/${selectedType}`,
-        inputs
+        { ...inputs, ...(chainContext ? { _chainContext: chainContext } : {}) }
       );
       return response;
     },
     onSuccess: (data) => {
       setResult(data);
+      setHistoryId(data.historyId ?? null);
       toast({
         title: "Success",
         description: "Prompt generated successfully"
@@ -216,14 +230,51 @@ export default function Playground() {
     <div className="flex flex-col min-h-screen">
       <div className="container mx-auto px-6 py-8 flex-1">
         <div className="max-w-7xl mx-auto space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-4xl md:text-5xl font-bold" data-testid="text-page-title">
-              <Sparkles className="inline-block h-10 w-10 mr-3 text-primary" />
-              Playground
-            </h1>
-            <p className="text-lg text-muted-foreground" data-testid="text-page-description">
-              Generate prompts with live validation and instant results
-            </p>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="space-y-2">
+              <h1 className="text-4xl md:text-5xl font-bold" data-testid="text-page-title">
+                <Sparkles className="inline-block h-10 w-10 mr-3 text-primary" />
+                Playground
+              </h1>
+              <p className="text-lg text-muted-foreground" data-testid="text-page-description">
+                Generate prompts with live validation and instant results
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {STARTER_TEMPLATES[selectedCategory] && STARTER_TEMPLATES[selectedCategory]!.length > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" data-testid="button-templates">
+                      <BookOpen className="h-4 w-4 mr-2" />
+                      Templates
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>Starter Templates</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {STARTER_TEMPLATES[selectedCategory]!.map((tpl, i) => (
+                      <DropdownMenuItem
+                        key={i}
+                        onClick={() => {
+                          setCurrentInputs(tpl.inputs);
+                          formResetKeyRef.current += 1;
+                          toast({ title: "Template loaded", description: tpl.name });
+                        }}
+                        data-testid={`template-${i}`}
+                      >
+                        {tpl.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+              <Link href={`/compare?category=${selectedCategory}`}>
+                <Button variant="outline" data-testid="button-compare">
+                  <GitCompare className="h-4 w-4 mr-2" />
+                  Compare All 3
+                </Button>
+              </Link>
+            </div>
           </div>
 
           <Card className="border-primary/20">
@@ -234,7 +285,12 @@ export default function Playground() {
                   <CardDescription>Select a generator category</CardDescription>
                 </div>
                 <div className="w-full md:w-80">
-                  <Select value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as Category)}>
+                  <Select value={selectedCategory} onValueChange={(value) => {
+                    setSelectedCategory(value as Category);
+                    setCurrentInputs({});
+                    setResult(null);
+                    setHistoryId(null);
+                  }}>
                     <SelectTrigger data-testid="select-category">
                       <SelectValue />
                     </SelectTrigger>
@@ -261,7 +317,12 @@ export default function Playground() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Tabs value={selectedType} onValueChange={(value) => setSelectedType(value as GeneratorType)}>
+                  <Tabs value={selectedType} onValueChange={(value) => {
+                    setSelectedType(value as GeneratorType);
+                    setCurrentInputs({});
+                    setResult(null);
+                    setHistoryId(null);
+                  }}>
                     <TabsList className="grid w-full grid-cols-3" data-testid="tabs-generator-type">
                       {GENERATOR_TYPES.map((type) => (
                         <TabsTrigger key={type} value={type} data-testid={`tab-${type}`}>
@@ -320,6 +381,13 @@ export default function Playground() {
                   </div>
                 </CardHeader>
                 <CardContent>
+                  {chainContext && (
+                    <div className="mb-4 rounded-md border p-3 space-y-2" data-testid="chained-context">
+                      <p className="text-sm font-medium">Context from the previous generator</p>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap max-h-40 overflow-auto">{chainContext}</p>
+                      <Button variant="outline" size="sm" onClick={() => setChainContext("")}>Remove context</Button>
+                    </div>
+                  )}
                   <DynamicForm
                     key={`${selectedCategory}-${selectedType}-${formResetKeyRef.current}`}
                     category={selectedCategory}
@@ -334,11 +402,13 @@ export default function Playground() {
 
             <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
               <ResultPanel
+                key={`${selectedCategory}-${selectedType}-${historyId ?? "empty"}`}
                 result={result}
                 isLoading={generateMutation.isPending}
                 category={selectedCategory}
                 genType={selectedType}
-                inputs={currentInputs}
+                inputs={{ ...currentInputs, ...(chainContext ? { _chainContext: chainContext } : {}) }}
+                historyId={historyId}
               />
             </div>
           </div>

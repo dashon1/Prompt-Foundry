@@ -52,6 +52,24 @@ export const CATEGORIES = [
 
 export const GENERATOR_TYPES = ["prompt_generator", "agent_helper", "general_generator"] as const;
 
+export const CATEGORY_DOMAINS = {
+  core: ["image","video","youtube_titles","apps","marketing_content","visual_design","av_production","business_analysis","dev_tasks","personal_helper","strategy_innovation","data_decision","hyper_personalization","automation_augmentation","content_creation","science_rnd","hr_operations"],
+  startup: ["startup_idea_refinement","lean_canvas","startup_name_generator","startup_competitor_mapping","startup_customer_plan","startup_mvp_prioritization","startup_brand_voice","startup_launch_checklist","startup_pitch","startup_content_calendar","startup_offer_stack","startup_roadmap","startup_customer_avatar","startup_brand_story","startup_site_wireframe","startup_productivity_system","startup_email_sequence","startup_pitch_deck","startup_partnership_pipeline","startup_objection_handling","startup_stress_framework","startup_skills_plan","startup_feedback_loop","startup_networking_system","startup_customer_journey"],
+  food: ["baking_formula","food_business_concept","event_food_planning","food_social_content","food"],
+  realestate: ["rei_market_research","rei_acquisition_system","rei_inspection_notes","rei_investor","real_estate"],
+  finance: ["business_credit","credit","day_trading","trust_estate_info_gather","business_entity_overview"],
+  specialized: ["mcp_product_builder","ethical_data_extraction","seo_frameworks","elearning_builder","meditation_script","lets_get_viral","long_covid","music","service_business_sites","website_building","photorealistic_images"],
+} as const;
+
+export const DOMAIN_LABELS: Record<keyof typeof CATEGORY_DOMAINS, string> = {
+  core: "Core Creative",
+  startup: "Startup",
+  food: "Food & Hospitality",
+  realestate: "Real Estate",
+  finance: "Finance",
+  specialized: "Specialized",
+};
+
 export type Category = typeof CATEGORIES[number];
 export type GeneratorType = typeof GENERATOR_TYPES[number];
 
@@ -1801,6 +1819,7 @@ export const generationHistory = pgTable("generation_history", {
   genType: varchar("gen_type", { length: 100 }).notNull(),
   inputs: jsonb("inputs").notNull(),
   output: jsonb("output").notNull(),
+  rating: integer("rating"),
   isFavorite: boolean("is_favorite").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow()
 }, (table) => ({

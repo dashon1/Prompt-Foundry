@@ -1,191 +1,66 @@
 # Prompt Foundry
 
-## Overview
+A comprehensive AI-powered prompt generation platform with 68 categories, community sharing, comparison mode, and a usage dashboard.
 
-Prompt Foundry is a comprehensive prompt generation platform that creates AI prompts across 68 categories spanning diverse domains: startups, food & hospitality, real estate & investment, finance & business, images, video, YouTube, apps, marketing, design, production, analysis, development, science, HR, and many specialized areas. The application provides a playground for designing prompts, an API for programmatic access, and Zod-validated schemas ensuring type-safe inputs and outputs.
+## Run & Operate
+- `npm run dev` — starts Express + Vite on port 5000
+- `npm run db:push` — push schema changes to PostgreSQL (never write raw SQL migrations)
+- `npm run build` — production build
+- `npm run check` — TypeScript check
+- `npm test` — regression tests (mocked persistence; no live database writes)
 
-The platform uses OpenAI's API (via Replit's AI Integrations service, model: gpt-4o) to generate high-quality, detailed prompts based on user specifications. Each generator type follows industry best practices and returns structured JSON outputs that match defined schemas. The AI engine uses category-specific system prompts and output structures for all 68 categories, ensuring domain-appropriate responses.
+**Required env vars:** `DATABASE_URL`, `SESSION_SECRET`, `AI_INTEGRATIONS_OPENAI_BASE_URL`, `AI_INTEGRATIONS_OPENAI_API_KEY`
 
-## User Preferences
+## Stack
+- **Frontend:** React + TypeScript, Wouter, TanStack Query, React Hook Form + Zod, shadcn/ui + Tailwind CSS
+- **Backend:** Express.js + TypeScript, Node.js ESM, tsx (dev) / esbuild (prod)
+- **Database:** PostgreSQL via @neondatabase/serverless + Drizzle ORM
+- **AI:** OpenAI GPT-4o via Replit AI Integrations
 
-Preferred communication style: Simple, everyday language.
+## Where things live
+- `shared/schema.ts` — all 68 categories, Zod schemas, DB table definitions, `CATEGORY_DOMAINS`, `DOMAIN_LABELS`, `CATEGORY_METADATA`
+- `server/routes.ts` — all API routes
+- `server/storage.ts` — all DB CRUD operations
+- `server/openai.ts` — prompt generation logic (category-specific system prompts)
+- `client/src/pages/` — all page components
+- `client/src/components/` — reusable components (ResultPanel, DynamicForm, Header, etc.)
+- `client/src/lib/starterTemplates.ts` — pre-filled starter inputs for popular categories
 
-## System Architecture
+## Architecture decisions
+- Generator endpoint always saves to history and returns `historyId` so frontend can rate it without re-fetching
+- All shared links are automatically public and show in Community Gallery (`/api/community` — no auth needed)
+- Domain filtering (`CATEGORY_DOMAINS`) lives in schema.ts so it's shared with both FE and BE
+- Rating stored as nullable integer: `1` = thumbs up, `-1` = thumbs down, `null` = unrated
+- Compare page (`/compare`) fires all 3 generator types with `Promise.allSettled` and shows results side by side
 
-### Frontend Architecture
+## Product
+- **68 generator categories** across 6 domains: Core Creative, Startup, Food & Hospitality, Real Estate, Finance, Specialized
+- **3 generator types** per category: Prompt Generator, Agent Helper, General Generator
+- **Playground** with AI Assist, Starter Templates, JSON import/export, presets, and "Compare All 3" shortcut
+- **Compare mode** — fill inputs once, get all 3 types side by side
+- **Community Gallery** — public listing of all shared prompts
+- **Usage Dashboard** — total generations, this week, favorites, thumbs up, top categories, recent activity
+- **History** with re-run, favorite, copy, and thumbs up/down rating
+- **Prompt Chaining** — "Chain to another generator" button on results navigates with output as context
+- **API Keys** — create, toggle, delete keys for programmatic access
+- **Replit Auth** (OpenID Connect) — all personal features gated behind auth
 
-**Framework:** React with TypeScript
-- **Routing:** Wouter (lightweight client-side router)
-- **State Management:** TanStack Query (React Query) for server state
-- **Form Handling:** React Hook Form with Zod validation via @hookform/resolvers
-- **UI Components:** Radix UI primitives with shadcn/ui component library
-- **Styling:** Tailwind CSS with custom design system (New York style)
+## User preferences
+- Simple, everyday language in all responses.
 
-**Design System:**
-- Typography: Inter font family (via Google Fonts)
-- Dark mode support with CSS custom properties
-- Modern developer platform aesthetic inspired by Linear, Stripe, and Vercel
-- Component variants using class-variance-authority (CVA)
-- Elevation system with hover and active states
+## Gotchas
+- Share route is `POST /api/share` (singular) — not `/api/shares`
+- API key routes use `/api/keys`; the list response is `{ keys: [...] }` and never exposes key hashes.
+- Generator response includes `historyId` — used by ResultPanel for rating
+- `DynamicForm` accepts `submitLabel` prop to override the default "Generate Prompt" label
+- `npm run db:push` (not `--force`) for schema changes; only use `--force` if you accept data loss
 
-**Key Pages:**
-- Home: Landing page with features and CTAs
-- Generators: Catalog of all 68 generator categories
-- Playground: Interactive form-based generator interface
-- API: Documentation for RESTful endpoints
+## Database availability
+- For a database reporting "The endpoint has been disabled", check the Database pane's Settings for "Unpause database". Schema pushes and code changes do not re-enable a disabled endpoint.
+- Do not replace the database, change its credentials, or return unsaved generations as successful results to work around an outage.
+- `/api/health` checks the database and returns HTTP 503 when unavailable; the UI shows an outage notice.
 
-### Backend Architecture
-
-**Framework:** Express.js with TypeScript
-- **Runtime:** Node.js with ESM modules
-- **Build Tool:** Vite for frontend, esbuild for server bundling
-- **Development:** tsx for TypeScript execution in development
-
-**Request Flow:**
-1. Client submits form data via POST to `/api/generator/:category/:genType`
-2. Route validates category and genType against allowed values
-3. Schema validates request body using Zod
-4. OpenAI service generates prompt using GPT model
-5. Response returned as structured JSON
-6. Optional: History saved to in-memory storage
-
-**Error Handling:**
-- Input validation errors return 422 with detailed error messages
-- Unknown categories/types return 404 with helpful error messages
-- Rate limiting and retry logic built into OpenAI service using p-retry and p-limit
-
-### Data Storage Solutions
-
-**Current Implementation:** PostgreSQL database with Drizzle ORM
-- **Active Database:** PostgreSQL via @neondatabase/serverless
-- **ORM:** Drizzle with full type safety
-- **Schema Location:** `shared/schema.ts`
-- **Storage Layer:** `server/storage.ts` with comprehensive CRUD operations
-
-**Database Tables (Updated November 11, 2025):**
-1. **users** - Replit Auth compatible user accounts (varchar UUID primary key)
-2. **sessions** - PostgreSQL session store for authentication
-3. **presets** - User-saved generator configurations
-4. **generation_history** - All generated prompts with optional user association
-5. **shared_links** - Shareable prompt configurations with view tracking
-6. **api_keys** - User API keys for external integrations with rate limiting
-7. **n8n_workflows** - Stored n8n workflow JSONs for reference library (userId, name, description, workflowData jsonb, workflowType, nodesUsed text[], tags text[], isFavorite, timestamps)
-
-**Storage Operations:**
-- User management: `getUser()`, `upsertUser()`
-- Presets: `createPreset()`, `getUserPresets()`, `updatePreset()`, `deletePreset()`, `togglePresetFavorite()`
-- n8n Workflows: `createN8nWorkflow()`, `getUserN8nWorkflows()`, `getN8nWorkflowById()`, `updateN8nWorkflow()`, `deleteN8nWorkflow()`, `toggleN8nWorkflowFavorite()`
-- History: `saveGenerationHistory()`, `getUserHistory()`, `toggleHistoryFavorite()`, `deleteHistory()`
-- Shared Links: `createSharedLink()`, `getSharedLinkByShareId()`, `getUserSharedLinks()`, `deleteSharedLink()`
-- API Keys: `createApiKey()`, `verifyApiKey()`, `getUserApiKeys()`, `deleteApiKey()`, `toggleApiKeyStatus()`
-
-**Authentication:**
-- Replit Auth via OpenID Connect (openid-client)
-- Session management with connect-pg-simple
-- Auth routes: `/api/login`, `/api/logout`, `/api/callback`
-- Protected routes use `isAuthenticated` middleware
-- User profile endpoint: `/api/auth/user`
-
-### Schema & Validation System
-
-**Zod Schemas:** Core validation layer in `shared/schema.ts`
-- 68 categories defined as const array across 8 major domains
-- 3 generator types: prompt_generator, agent_helper, general_generator
-- Each category/type combination has dedicated input schema (201 total schemas)
-- Schemas include defaults, nested objects, and array validations
-
-**Category Domains:**
-1. **Core Creative** (17 categories): Image, Video, YouTube, Apps, Marketing, Visual Design, AV Production, Business Analysis, Development, Personal Helper, Strategy, Data & Decision, Hyper Personalization, Automation, Content Creation, Science R&D, HR Operations
-2. **Startup & Entrepreneurship** (24 categories): Idea Refinement, Lean Canvas, Name Generator, Competitor Mapping, Customer Acquisition, MVP Prioritization, Brand Voice, Launch Checklist, Pitch Creation, Content Calendar, Offer Stack, Product Roadmap, Customer Avatar, Brand Story, Site Wireframe, Productivity System, Email Sequence, Pitch Deck, Partnership Pipeline, Objection Handling, Stress Management, Skills Development, Feedback Loop, Networking System, Customer Journey
-3. **Food & Hospitality** (5 categories): Baking Formula, Food Business Concept, Event Food Planning, Food Social Content, General Culinary
-4. **Real Estate & Investment** (5 categories): Market Research, Acquisition System, Inspection Notes, Investor Tools, General Real Estate
-5. **Finance & Business** (5 categories): Business Credit, Credit Management, Day Trading, Trust & Estate Planning, Business Entity Guide
-6. **Specialized Tools** (11 categories): MCP Product Builder, Ethical Data Extraction, SEO Frameworks, eLearning Builder, Meditation Scripts, Viral Content, Long COVID Resources, Music Creation, Service Business Sites, Website Building, Photorealistic Images
-
-**Schema Features:**
-- Type-safe inputs with TypeScript inference
-- Default values for optional fields (IMAGE_DEFAULTS, VIDEO_DEFAULTS)
-- Preset constants (PHOTOREALISM_ADDON for realistic image generation)
-- Category metadata with icons, names, descriptions for all 68 generators
-
-### External Dependencies
-
-**AI Services:**
-- OpenAI API via Replit AI Integrations
-- Base URL: `process.env.AI_INTEGRATIONS_OPENAI_BASE_URL`
-- API Key: `process.env.AI_INTEGRATIONS_OPENAI_API_KEY`
-- No personal OpenAI API key required
-- Rate limiting handled with p-limit concurrency control
-- Retry logic for transient failures using p-retry
-
-**UI Component Library:**
-- Radix UI: Headless accessible components (@radix-ui/react-*)
-- shadcn/ui: Pre-styled component implementations
-- Lucide React: Icon library
-- cmdk: Command menu component
-
-**Utilities:**
-- date-fns: Date manipulation
-- clsx + tailwind-merge: Conditional className handling
-- nanoid: ID generation
-- embla-carousel-react: Carousel functionality
-
-**Development Tools:**
-- @replit/vite-plugin-runtime-error-modal: Error overlay
-- @replit/vite-plugin-cartographer: Code navigation (dev only)
-- @replit/vite-plugin-dev-banner: Development banner (dev only)
-
-**Database (Configured but not required):**
-- Drizzle ORM with drizzle-zod for schema validation
-- @neondatabase/serverless for PostgreSQL connection
-- drizzle-kit for migrations
-
-**Build & Bundling:**
-- Vite: Frontend bundling and dev server
-- esbuild: Server-side bundling for production
-- PostCSS with Tailwind CSS and Autoprefixer
-
-## Recent Features (November 11, 2025)
-
-### JSON Import/Export System
-Unified JSON upload/download functionality in the Playground that supports two types of files:
-
-**1. Prompt Configuration JSONs:**
-- Auto-detects category and generator type from JSON structure
-- Validates against all 68 category schemas to find best match
-- Automatically switches to detected category/type and populates form
-- Download format: `prompt-foundry-{category}-{YYYYMMDD}.json`
-
-**2. n8n Workflow JSONs:**
-- Detects workflows by presence of `nodes` array
-- Analyzes workflow structure: node types, connections, workflow purpose
-- Converts workflow logic to automation prompt inputs
-- Automatically saves to workflow reference library
-- Suggests category (typically automation_augmentation)
-
-**Implementation:**
-- Accepts both `.json` and `.txt` files (content must be valid JSON)
-- Client-side file processing with 200KB limit for security
-- `client/src/lib/jsonAnalyzer.ts`: Type detection and schema validation
-- `client/src/components/JSONImportExport.tsx`: Drag-and-drop UI component
-- `POST /api/workflows/analyze` (authenticated): Server-side n8n workflow analysis
-
-### AI-Assisted Field Completion
-Intelligent form field suggestions using OpenAI to fill empty required fields.
-
-**Features:**
-- Schema-based empty field detection (respects optional/default values)
-- Handles falsy values correctly (0, false are not considered empty)
-- Uses category context + current form values + optional workflow context
-- Single "AI Assist" button in Inputs card header
-- Shows loading state during generation
-- Automatically merges suggestions into form
-
-**Implementation:**
-- `POST /api/ai-assist` (authenticated): OpenAI-powered field suggestion endpoint
-- `callOpenAIChat()` helper in `server/openai.ts`: Generic OpenAI wrapper with retry logic
-- Frontend mutation in Playground.tsx with schema introspection
-- Last uploaded workflow automatically included as context
-
-**Authentication Requirements:**
-Both JSON workflow analysis and AI assist features require user authentication to prevent abuse and ensure proper workflow library access.
+## Pointers
+- Schema: `shared/schema.ts` (1900+ lines)
+- Integrations skill: `.local/skills/integrations/SKILL.md`
+- Deployment skill: `.local/skills/deployment/SKILL.md`

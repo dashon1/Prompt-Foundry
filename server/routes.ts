@@ -1,9 +1,9 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import {
   getUser, saveGenerationHistory, getUserHistory,
   createPreset, getUserPresets, updatePreset, deletePreset, togglePresetFavorite,
-  toggleHistoryFavorite, deleteHistory,
+  toggleHistoryFavorite, deleteHistory, rateHistoryItem, getUserStats, getPublicSharedLinks,
   createSharedLink, getSharedLinkByShareId, getUserSharedLinks, deleteSharedLink,
   createApiKey, getUserApiKeys, deleteApiKey, toggleApiKeyStatus,
   createN8nWorkflow, getUserN8nWorkflows, deleteN8nWorkflow, toggleN8nWorkflowFavorite
@@ -12,10 +12,22 @@ import { generatePrompt, callOpenAIChat } from "./openai";
 import { GENERATOR_SCHEMAS, CATEGORIES, GENERATOR_TYPES, CATEGORY_METADATA } from "@shared/schema";
 import type { Category, GeneratorType } from "@shared/schema";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
+
+const ownerId = (req: Request): string => (req.user as { claims: { sub: string } }).claims.sub;
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication
   await setupAuth(app);
+
+  app.param("id", (_req, res, next, value) => {
+    if (!/^[1-9]\d*$/.test(value) || !Number.isSafeInteger(Number(value))) {
+      res.status(400).json({ message: "Invalid record ID" });
+      return;
+    }
+    next();
+  });
 
   // Auth endpoint - get current user
   app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
@@ -62,25 +74,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      const chainContext = req.body._chainContext;
+      if (chainContext !== undefined && (typeof chainContext !== "string" || chainContext.length > 20000)) {
+        return res.status(422).json({ message: "Chained context must be text of at most 20,000 characters" });
+      }
+
+      // Check persistence before spending an AI request on a result we cannot save.
+      try {
+        await db.execute(sql`SELECT 1`);
+      } catch {
+        return res.status(503).json({ message: "The database is unavailable. Generation has not started because the result could not be saved. Please try again later." });
+      }
+
       // Generate the prompt using OpenAI
       const result = await generatePrompt(
         category as Category,
         genType as GeneratorType,
-        validationResult.data
+        validationResult.data,
+        chainContext
       );
 
       // Save to history with userId if authenticated
       const userId = req.isAuthenticated() ? req.user.claims.sub : null;
-      await saveGenerationHistory({
+      const historyRecord = await saveGenerationHistory({
         userId,
         category,
         genType,
-        inputs: validationResult.data,
+        inputs: chainContext ? { ...validationResult.data, _chainContext: chainContext } : validationResult.data,
         output: result.output
       });
 
-      // Return the result
-      res.json(result);
+      // Return the result with historyId for rating
+      res.json({ ...result, historyId: historyRecord.id });
     } catch (error: any) {
       console.error("Error generating prompt:", error);
       res.status(500).json({
@@ -157,11 +182,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Rate a history item (thumbs up/down)
+  app.post("/api/history/:id/rating", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { rating } = req.body;
+      if (rating !== null && rating !== 1 && rating !== -1) {
+        return res.status(400).json({ error: "Rating must be 1, -1, or null" });
+      }
+      const updated = await rateHistoryItem(id, ownerId(req), rating);
+      if (!updated) return res.status(404).json({ message: "History item not found" });
+      res.json(updated);
+    } catch (error: any) {
+      console.error("Error rating history:", error);
+      res.status(500).json({ error: "Service error", message: "Failed to rate history item" });
+    }
+  });
+
   // Toggle history favorite
   app.patch("/api/history/:id/favorite", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const updated = await toggleHistoryFavorite(id);
+      const updated = await toggleHistoryFavorite(id, ownerId(req));
+      if (!updated) return res.status(404).json({ message: "History item not found" });
       res.json(updated);
     } catch (error: any) {
       console.error("Error toggling history favorite:", error);
@@ -176,7 +219,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/history/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      await deleteHistory(id);
+      if (!await deleteHistory(id, ownerId(req))) return res.status(404).json({ message: "History item not found" });
       res.json({ success: true });
     } catch (error: any) {
       console.error("Error deleting history:", error);
@@ -184,6 +227,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: "Service error",
         message: "Failed to delete history"
       });
+    }
+  });
+
+  // User stats dashboard
+  app.get("/api/stats", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const stats = await getUserStats(userId);
+      res.json(stats);
+    } catch (error: any) {
+      console.error("Error fetching stats:", error);
+      res.status(500).json({ error: "Service error", message: "Failed to fetch stats" });
+    }
+  });
+
+  // Community gallery - public shared links
+  app.get("/api/community", async (req, res) => {
+    try {
+      const links = await getPublicSharedLinks(24);
+      res.json({ links });
+    } catch (error: any) {
+      console.error("Error fetching community:", error);
+      res.status(500).json({ error: "Service error", message: "Failed to fetch community links" });
     }
   });
 
@@ -222,7 +288,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/presets/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const updated = await updatePreset(id, req.body);
+      const { name, category, genType, inputs, isFavorite } = req.body;
+      const updates = Object.fromEntries(
+        Object.entries({ name, category, genType, inputs, isFavorite }).filter(([, value]) => value !== undefined)
+      );
+      const updated = await updatePreset(id, ownerId(req), updates);
+      if (!updated) return res.status(404).json({ message: "Preset not found" });
       res.json(updated);
     } catch (error: any) {
       console.error("Error updating preset:", error);
@@ -236,7 +307,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/presets/:id/favorite", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const updated = await togglePresetFavorite(id);
+      const updated = await togglePresetFavorite(id, ownerId(req));
+      if (!updated) return res.status(404).json({ message: "Preset not found" });
       res.json(updated);
     } catch (error: any) {
       console.error("Error toggling preset favorite:", error);
@@ -250,7 +322,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/presets/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      await deletePreset(id);
+      if (!await deletePreset(id, ownerId(req))) return res.status(404).json({ message: "Preset not found" });
       res.json({ success: true });
     } catch (error: any) {
       console.error("Error deleting preset:", error);
@@ -316,7 +388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/shares/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      await deleteSharedLink(id);
+      if (!await deleteSharedLink(id, ownerId(req))) return res.status(404).json({ message: "Shared link not found" });
       res.json({ success: true });
     } catch (error: any) {
       console.error("Error deleting shared link:", error);
@@ -332,7 +404,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const keys = await getUserApiKeys(userId);
-      res.json({ keys });
+      res.json({ keys: keys.map(({ keyHash, ...key }) => key) });
     } catch (error: any) {
       console.error("Error fetching API keys:", error);
       res.status(500).json({
@@ -346,8 +418,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const { name } = req.body;
-      const result = await createApiKey(userId, name);
-      res.json(result);
+      if (typeof name !== "string" || !name.trim() || name.trim().length > 100) {
+        return res.status(400).json({ message: "Key name must be between 1 and 100 characters" });
+      }
+      const result = await createApiKey(userId, name.trim());
+      const { keyHash, ...apiKey } = result.apiKey;
+      res.json({ apiKey, rawKey: result.rawKey });
     } catch (error: any) {
       console.error("Error creating API key:", error);
       res.status(500).json({
@@ -360,8 +436,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/keys/:id/toggle", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const updated = await toggleApiKeyStatus(id);
-      res.json(updated);
+      const updated = await toggleApiKeyStatus(id, ownerId(req));
+      if (!updated) return res.status(404).json({ message: "API key not found" });
+      const { keyHash, ...key } = updated;
+      res.json(key);
     } catch (error: any) {
       console.error("Error toggling API key:", error);
       res.status(500).json({
@@ -374,7 +452,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/keys/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      await deleteApiKey(id);
+      if (!await deleteApiKey(id, ownerId(req))) return res.status(404).json({ message: "API key not found" });
       res.json({ success: true });
     } catch (error: any) {
       console.error("Error deleting API key:", error);
@@ -508,7 +586,8 @@ ${JSON.stringify(emptyFieldsJson, null, 2)}`;
   app.patch("/api/workflows/:id/favorite", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const updated = await toggleN8nWorkflowFavorite(id);
+      const updated = await toggleN8nWorkflowFavorite(id, ownerId(req));
+      if (!updated) return res.status(404).json({ message: "Workflow not found" });
       res.json(updated);
     } catch (error: any) {
       console.error("Error toggling workflow favorite:", error);
@@ -522,7 +601,7 @@ ${JSON.stringify(emptyFieldsJson, null, 2)}`;
   app.delete("/api/workflows/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      await deleteN8nWorkflow(id);
+      if (!await deleteN8nWorkflow(id, ownerId(req))) return res.status(404).json({ message: "Workflow not found" });
       res.json({ success: true });
     } catch (error: any) {
       console.error("Error deleting workflow:", error);
@@ -534,13 +613,25 @@ ${JSON.stringify(emptyFieldsJson, null, 2)}`;
   });
 
   // Health check endpoint
-  app.get("/api/health", (req, res) => {
-    res.json({
-      status: "ok",
+  app.get("/api/health", async (_req, res) => {
+    let database = "connected";
+    try {
+      await db.execute(sql`SELECT 1`);
+    } catch {
+      database = "unavailable";
+    }
+    res.status(database === "connected" ? 200 : 503).json({
+      status: database === "connected" ? "ok" : "degraded",
+      database,
       timestamp: new Date().toISOString(),
       categories: CATEGORIES.length,
       generatorTypes: GENERATOR_TYPES.length
     });
+  });
+
+  // Unknown API paths must not fall through to the frontend's HTML response.
+  app.use("/api", (_req, res) => {
+    res.status(404).json({ message: "API endpoint not found" });
   });
 
   const httpServer = createServer(app);

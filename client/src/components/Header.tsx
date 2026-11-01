@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sparkles, User, LogOut, Key, History } from "lucide-react";
+import { Sparkles, User, LogOut, Key, History, BarChart3, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 export function Header() {
@@ -19,6 +19,7 @@ export function Header() {
     { label: "Home", href: "/" },
     { label: "Generators", href: "/generators" },
     { label: "Playground", href: "/playground" },
+    { label: "Community", href: "/community" },
     { label: "API", href: "/api" }
   ];
 
@@ -26,12 +27,8 @@ export function Header() {
     if (!user) return "U";
     const firstName = user.firstName || "";
     const lastName = user.lastName || "";
-    if (firstName && lastName) {
-      return `${firstName[0]}${lastName[0]}`.toUpperCase();
-    }
-    if (user.email) {
-      return user.email[0].toUpperCase();
-    }
+    if (firstName && lastName) return `${firstName[0]}${lastName[0]}`.toUpperCase();
+    if (user.email) return user.email[0].toUpperCase();
     return "U";
   };
 
@@ -60,14 +57,10 @@ export function Header() {
           {!isLoading && !isAuthenticated && (
             <>
               <Link href="/playground">
-                <Button variant="ghost" data-testid="button-get-started">
-                  Get Started
-                </Button>
+                <Button variant="ghost" data-testid="button-get-started">Get Started</Button>
               </Link>
               <a href="/api/login">
-                <Button data-testid="button-login">
-                  Log In
-                </Button>
+                <Button data-testid="button-login">Log In</Button>
               </a>
             </>
           )}
@@ -94,6 +87,12 @@ export function Header() {
                   </div>
                 </div>
                 <DropdownMenuSeparator />
+                <Link href="/dashboard">
+                  <DropdownMenuItem data-testid="menu-dashboard">
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </DropdownMenuItem>
+                </Link>
                 <Link href="/history">
                   <DropdownMenuItem data-testid="menu-history">
                     <History className="mr-2 h-4 w-4" />

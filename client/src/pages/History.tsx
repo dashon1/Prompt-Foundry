@@ -15,13 +15,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2, Star, Trash2, Search, History as HistoryIcon, Copy, Check } from "lucide-react";
+import { Loader2, Star, Trash2, Search, History as HistoryIcon, Copy, Check, RotateCcw } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "wouter";
 import { CATEGORY_METADATA } from "@shared/schema";
 import type { GenerationHistory, Category } from "@shared/schema";
 import { format } from "date-fns";
+import { createPlaygroundUrl } from "@/lib/playgroundNavigation";
 
 export default function History() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -241,12 +243,17 @@ interface HistoryItemProps {
 
 function HistoryItem({ item, onToggleFavorite, onDelete, onCopy, copiedId }: HistoryItemProps) {
   const categoryMeta = CATEGORY_METADATA.find((c) => c.id === item.category);
+  const [, navigate] = useLocation();
+
+  const handleRerun = () => {
+    navigate(createPlaygroundUrl(item.category, item.genType, item.inputs));
+  };
 
   return (
     <Card data-testid={`history-${item.id}`}>
       <CardHeader>
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 space-y-2">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="flex-1 space-y-2 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary">{categoryMeta?.name || item.category}</Badge>
               <Badge variant="outline">{item.genType.replace(/_/g, " ")}</Badge>
@@ -261,7 +268,16 @@ function HistoryItem({ item, onToggleFavorite, onDelete, onCopy, copiedId }: His
               {format(new Date(item.createdAt), "MMM d, yyyy 'at' h:mm a")}
             </p>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 shrink-0">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleRerun}
+              data-testid={`button-rerun-${item.id}`}
+            >
+              <RotateCcw className="h-3 w-3 mr-1" />
+              Re-run
+            </Button>
             <Button
               size="icon"
               variant="ghost"
